@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import { Draggable } from 'react-beautiful-dnd';
 import { CardItemTypes, ItemProps } from '../types';
 
-const { Link } = Typography;
+const { Title } = Typography;
 
 const StyledCard = styled(Flex)`
   border: 1px solid #cc8e1e;
@@ -16,10 +16,11 @@ const StyledCard = styled(Flex)`
   height: 100%;
 `;
 
-const StyledItemTitle = styled(Link)`
+const StyledItemTitle = styled(Title)`
   text-overflow: ellipsis;
   white-space: nowrap;
   overflow: hidden;
+  color: blue;
 `;
 
 export const Item: React.FC<ItemProps> = ({ cardData }) => {
@@ -44,9 +45,7 @@ export const Item: React.FC<ItemProps> = ({ cardData }) => {
               {...provided.draggableProps}
               {...provided.dragHandleProps}
             >
-              <StyledItemTitle href={issue.html_url}>
-                {issue.title}
-              </StyledItemTitle>
+              <StyledItemTitle level={5}>{issue.title}</StyledItemTitle>
               <Flex>{issue.description}</Flex>
             </StyledCard>
           )}
