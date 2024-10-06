@@ -2,6 +2,7 @@
   "name": "boardmanagement",
   "private": true,
   "version": "0.0.0",
+  "homepage": "https://nuclme.github.io/BoardManagement/",
   "type": "module",
   "scripts": {
     "dev": "vite",
