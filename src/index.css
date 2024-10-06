@@ -12,6 +12,9 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+* {
+  box-sizing: border-box;
+}
 
 a {
   font-weight: 500;
@@ -27,7 +30,6 @@ body {
   display: flex;
   place-items: center;
   min-width: 320px;
-  min-height: 100vh;
 }
 
 h1 {
@@ -66,3 +68,4 @@ button:focus-visible {
     background-color: #f9f9f9;
   }
 }
+
