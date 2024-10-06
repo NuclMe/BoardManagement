@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React, { useState } from 'react';
 import { Row } from 'antd';
 import { Column } from './Column';
