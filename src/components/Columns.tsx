@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Row } from 'antd';
 import { Column } from './Column';
-// import { DragDropContext } from 'react-beautiful-dnd';
+import { DragDropContext } from 'react-beautiful-dnd';
 
 export const Columns: React.FC = () => {
   const [test] = useState([
@@ -42,12 +42,12 @@ export const Columns: React.FC = () => {
   // };
 
   return (
-    // <DragDropContext>
-    <Row style={{ marginTop: '20px' }} gutter={[20, 20]}>
-      <Column name="To Do" cardData={test} droppableId="col-1" />
-      <Column name="In Progress" cardData={test2} droppableId="col-2" />
-      <Column name="Done" cardData={test3} droppableId="col-3" />
-    </Row>
-    // </DragDropContext>
+    <DragDropContext>
+      <Row style={{ marginTop: '20px' }} gutter={[20, 20]}>
+        <Column name="To Do" cardData={test} droppableId="col-1" />
+        <Column name="In Progress" cardData={test2} droppableId="col-2" />
+        <Column name="Done" cardData={test3} droppableId="col-3" />
+      </Row>
+    </DragDropContext>
   );
 };
