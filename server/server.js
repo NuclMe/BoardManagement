@@ -1,18 +1,32 @@
 const express = require('express');
+const mongoose = require('mongoose');
 const cors = require('cors');
-const connectDB = require('./config/db');
-const todoRoutes = require('./routes/todoRoutes');
-require('dotenv').config();
+const dotenv = require('dotenv');
+const todoRoutes = require('./routes/taskRoutes'); // Importing todo routes
+const boardRoutes = require('./routes/boardRoutes'); // Importing board routes
 
+dotenv.config();
 const app = express();
-connectDB();
 
+// Middleware
 app.use(cors());
-app.use(express.json());
+app.use(express.json()); // For parsing JSON data
 
-app.use('/api/todos', todoRoutes);
+// Routes
+app.use('/api/tasks', todoRoutes); // Route for tasks
+app.use('/api/boards', boardRoutes); // Route for boards
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+
+// Connect to MongoDB and start server
+mongoose
+  .connect(process.env.MONGO_URI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  })
+  .then(() => {
+    app.listen(PORT, () => {
+      console.log(`Server running on port ${PORT}`);
+    });
+  })
+  .catch((err) => console.log(err));

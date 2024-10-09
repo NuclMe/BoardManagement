@@ -34,17 +34,26 @@ exports.addTask = async (req, res) => {
 
 // Get tasks for a board
 exports.getTasks = async (req, res) => {
+  const { boardId } = req.params; // Получаем boardId из параметров запроса
+  const { status } = req.query; // Получаем статус из query-параметров (например, ?status=Todo)
+
   try {
-    const { boardId } = req.params;
-    const { status } = req.query;
+    // Строим запрос к коллекции Task
+    const query = { boardId }; // Фильтр по boardId
+    if (status) {
+      query.status = status; // Добавляем фильтр по статусу, если он задан
+    }
 
-    const board = await Board.findById(boardId);
-    const tasks = status
-      ? board.tasks.filter((task) => task.status === status)
-      : board.tasks;
+    // Находим задачи по критериям
+    const tasks = await Task.find(query);
 
-    res.json(tasks);
-  } catch (err) {
+    if (!tasks || tasks.length === 0) {
+      return res.status(404).json({ message: 'No tasks found for this board' });
+    }
+
+    res.status(200).json(tasks); // Возвращаем список задач
+  } catch (error) {
+    console.error(error);
     res.status(500).json({ message: 'Server error' });
   }
 };
