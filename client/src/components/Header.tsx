@@ -9,7 +9,7 @@ import { setTodoData, setInProgressIssues, setDoneIssues } from '../redux';
 import { Input, Button, Flex } from 'antd';
 
 export const Header: React.FC = () => {
-  const [boardId, setBoardId] = useState();
+  const [boardId, setBoardId] = useState<string>();
   const dispatch = useDispatch();
 
   const [triggerGetTodoIssues] = useLazyGetTodoIssuesQuery();

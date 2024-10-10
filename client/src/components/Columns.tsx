@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React, { useState, useEffect } from 'react';
 import { Row } from 'antd';
 import { Column } from './Column';
@@ -8,23 +7,6 @@ import { CardItemTypes } from '../types';
 import { RootState } from '../redux/store';
 
 export const Columns: React.FC = () => {
-  // const [test] = useState([
-  //   { id: 1, title: 'test', description: 'Lorem ipsum dolorem' },
-  //   { id: 2, title: 'test2', description: 'Lorem ipsum dolorem' },
-  //   { id: 3, title: 'test3', description: 'Lorem ipsum dolorem' },
-  // ]);
-
-  // const [test2] = useState([
-  //   { id: 7, title: 'test', description: 'Lorem ipsum dolorem' },
-  //   { id: 8, title: 'test2', description: 'Lorem ipsum dolorem' },
-  //   { id: 9, title: 'test3', description: 'Lorem ipsum dolorem' },
-  // ]);
-  // const [test3] = useState([
-  //   { id: 4, title: 'test', description: 'Lorem ipsum dolorem' },
-  //   { id: 5, title: 'test2', description: 'Lorem ipsum dolorem' },
-  //   { id: 6, title: 'test3', description: 'Lorem ipsum dolorem' },
-  // ]);
-
   const todoData = useSelector((state: RootState) => state.todoData.data);
   const inProgressData = useSelector(
     (state: RootState) => state.inProgressData.data
