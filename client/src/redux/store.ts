@@ -3,6 +3,7 @@ import { boardApi } from './boardApi';
 import todoDataSlice from './todoDataSlice';
 import inProgressDataSlice from './inProgressDataSlice';
 import doneDataSlice from './doneDataSlice';
+import boardSlice from './boardSlice';
 
 export const store = configureStore({
   reducer: {
@@ -10,6 +11,7 @@ export const store = configureStore({
     todoData: todoDataSlice,
     inProgressData: inProgressDataSlice,
     doneData: doneDataSlice,
+    boardId: boardSlice,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat(boardApi.middleware),

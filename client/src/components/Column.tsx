@@ -40,7 +40,7 @@ export const Column: React.FC<ColumnPropsTypes> = ({
               </div>
             )}
           </Droppable>
-          <AddItem />
+          {name === 'To Do' && <AddItem />}
         </StyledColumnInner>
       </Col>
     </>

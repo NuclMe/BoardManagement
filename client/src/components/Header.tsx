@@ -5,11 +5,16 @@ import {
   useLazyGetDoneIssuesQuery,
 } from '../redux/boardApi';
 import { useDispatch } from 'react-redux';
-import { setTodoData, setInProgressIssues, setDoneIssues } from '../redux';
+import {
+  setTodoData,
+  setInProgressIssues,
+  setDoneIssues,
+  setBoardId,
+} from '../redux';
 import { Input, Button, Flex } from 'antd';
 
 export const Header: React.FC = () => {
-  const [boardId, setBoardId] = useState<string>();
+  const [localBoardId, setLocalBoardId] = useState<string>();
   const dispatch = useDispatch();
 
   const [triggerGetTodoIssues] = useLazyGetTodoIssuesQuery();
@@ -17,18 +22,19 @@ export const Header: React.FC = () => {
   const [triggerGetDoneIssues] = useLazyGetDoneIssuesQuery();
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setBoardId(e.target.value);
+    setLocalBoardId(e.target.value);
   };
   const getIssues = async () => {
-    const { data } = await triggerGetTodoIssues(boardId);
+    const { data } = await triggerGetTodoIssues(localBoardId);
     const { data: inProgressIssues } =
-      await triggerGetGetInProgressIssues(boardId);
-    const { data: doneIssues } = await triggerGetDoneIssues(boardId);
+      await triggerGetGetInProgressIssues(localBoardId);
+    const { data: doneIssues } = await triggerGetDoneIssues(localBoardId);
 
-    if (data && inProgressIssues && doneIssues) {
+    if (data && inProgressIssues && doneIssues && localBoardId) {
       dispatch(setTodoData(data));
       dispatch(setInProgressIssues(inProgressIssues));
       dispatch(setDoneIssues(doneIssues));
+      dispatch(setBoardId(localBoardId));
     }
   };
   return (
