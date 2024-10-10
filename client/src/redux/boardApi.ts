@@ -3,6 +3,7 @@ import { API_PATH } from '../api/apiConsts';
 
 export const boardApi = createApi({
   reducerPath: 'boardApi',
+  tagTypes: 'Tasks',
   baseQuery: fetchBaseQuery({
     baseUrl: API_PATH,
   }),
@@ -11,6 +12,14 @@ export const boardApi = createApi({
       query: (boardId) => ({
         url: `tasks/${boardId}/tasks?status=Todo`,
       }),
+      providesTags: (result) =>
+        result
+          ? [
+              ...result.map((task) => ({ type: 'Tasks', id: task.id })), // динамически привязываем теги для задач
+              { type: 'Tasks', id: 'LIST' }, // аннулируем весь список
+            ]
+          : [{ type: 'Tasks', id: 'LIST' }],
+      refetchOnMountOrArgChange: true,
     }),
     getInProgressIssues: builder.query({
       query: (boardId) => ({
@@ -28,6 +37,22 @@ export const boardApi = createApi({
         method: 'DELETE',
       }),
     }),
+    addIssue: builder.mutation({
+      query: ({ title, description, boardId }) => ({
+        url: `tasks/${boardId.boardId}/addTask`,
+        method: 'POST',
+        body: { title, description },
+      }),
+      invalidatesTags: [{ type: 'Tasks', id: 'LIST' }],
+    }),
+
+    editIssue: builder.mutation({
+      query: ({ body, boardId, taskId }) => ({
+        url: `tasks/${boardId}/tasks/${taskId}`,
+        method: 'PUT',
+        body,
+      }),
+    }),
   }),
 });
 
@@ -36,4 +61,6 @@ export const {
   useLazyGetInProgressIssuesQuery,
   useLazyGetDoneIssuesQuery,
   useDeleteIssueMutation,
+  useAddIssueMutation,
+  useEditIssueMutation,
 } = boardApi;

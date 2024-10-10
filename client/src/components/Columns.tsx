@@ -18,28 +18,25 @@ export const Columns: React.FC = () => {
   const [doneList, setDoneList] = useState<CardItemTypes[]>([]);
 
   useEffect(() => {
-    const savedTodo = localStorage.getItem('todoList');
-    const savedInProgress = localStorage.getItem('inProgressList');
-    const savedDone = localStorage.getItem('doneList');
+    // const savedTodo = localStorage.getItem('todoList');
+    // const savedInProgress = localStorage.getItem('inProgressList');
+    // const savedDone = localStorage.getItem('doneList');
 
-    if (savedTodo) setTodoList(JSON.parse(savedTodo));
-    else setTodoList(todoData || []);
+    setTodoList(todoData || []);
 
-    if (savedInProgress) setInProgressList(JSON.parse(savedInProgress));
-    else setInProgressList(inProgressData || []);
+    setInProgressList(inProgressData || []);
 
-    if (savedDone) setDoneList(JSON.parse(savedDone));
-    else setDoneList(doneData || []);
+    setDoneList(doneData || []);
   }, [todoData, inProgressData, doneData]);
 
-  useEffect(() => {
-    if (todoList.length > 0)
-      localStorage.setItem('todoList', JSON.stringify(todoList));
-    if (inProgressList.length > 0)
-      localStorage.setItem('inProgressList', JSON.stringify(inProgressList));
-    if (doneList.length > 0)
-      localStorage.setItem('doneList', JSON.stringify(doneList));
-  }, [todoList, inProgressList, doneList]);
+  // useEffect(() => {
+  //   if (todoList.length > 0)
+  //     localStorage.setItem('todoList', JSON.stringify(todoList));
+  //   if (inProgressList.length > 0)
+  //     localStorage.setItem('inProgressList', JSON.stringify(inProgressList));
+  //   if (doneList.length > 0)
+  //     localStorage.setItem('doneList', JSON.stringify(doneList));
+  // }, [todoList, inProgressList, doneList]);
 
   const onDragEnd = ({ source, destination }: DropResult) => {
     if (!destination) return;
