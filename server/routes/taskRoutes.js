@@ -10,7 +10,7 @@ const router = express.Router();
 
 router.post('/:boardId/addTask', addTask); // Add a task to a board
 router.get('/:boardId/tasks', getTasks); // Get tasks for a board
-router.put('/tasks/:taskId', editTask); // Edit a task
-router.delete('/tasks/:taskId', deleteTask); // Delete a task
+router.put('/:boardId/tasks/:taskId', editTask); // Edit a task
+router.delete('/:boardId/tasks/:taskId', deleteTask);
 
 module.exports = router;

@@ -1,5 +1,4 @@
 const Task = require('../models/Task');
-const Board = require('../models/Board'); // Assuming a board model exists
 
 // Add a task to the To-Do column of a board
 
@@ -63,12 +62,12 @@ exports.getTasks = async (req, res) => {
 
 // Edit a task
 exports.editTask = async (req, res) => {
-  const { id } = req.params;
+  const { taskId } = req.params;
   const { title, description, status } = req.body;
 
   try {
     const updatedTask = await Task.findByIdAndUpdate(
-      id,
+      taskId,
       { title, description, status },
       { new: true }
     );
@@ -80,10 +79,10 @@ exports.editTask = async (req, res) => {
 
 // Delete a task
 exports.deleteTask = async (req, res) => {
-  const { id } = req.params;
+  const { taskId } = req.params; // Получаем taskId из параметров
   try {
-    await Task.findByIdAndDelete(id);
-    res.json({ message: 'Task deleted' });
+    await Task.findByIdAndDelete(taskId); // Удаляем задачу по её id
+    res.json({ message: 'Task deleted successfully' });
   } catch (err) {
     res.status(500).json({ message: 'Server error' });
   }

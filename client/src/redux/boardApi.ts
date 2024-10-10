@@ -22,6 +22,12 @@ export const boardApi = createApi({
         url: `tasks/${boardId}/tasks?status=Done`,
       }),
     }),
+    deleteIssue: builder.mutation({
+      query: ({ boardId, taskId }) => ({
+        url: `tasks/${boardId}/tasks/${taskId}`,
+        method: 'DELETE',
+      }),
+    }),
   }),
 });
 
@@ -29,4 +35,5 @@ export const {
   useLazyGetTodoIssuesQuery,
   useLazyGetInProgressIssuesQuery,
   useLazyGetDoneIssuesQuery,
+  useDeleteIssueMutation,
 } = boardApi;
