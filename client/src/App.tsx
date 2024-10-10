@@ -1,13 +1,11 @@
 import './App.css';
 import { Header, Columns } from './components';
 
-function App() {
+export const App: React.FC = () => {
   return (
     <>
       <Header />
       <Columns />
     </>
   );
-}
-
-export default App;
+};

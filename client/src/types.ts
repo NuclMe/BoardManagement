@@ -5,7 +5,7 @@ interface ColumnPropsTypes {
 }
 
 interface CardItemTypes {
-  id: number;
+  _id: number;
   title: string;
   description: string;
 }

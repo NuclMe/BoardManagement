@@ -4,7 +4,7 @@ const Board = require('../models/Board'); // Assuming a board model exists
 // Add a task to the To-Do column of a board
 
 exports.addTask = async (req, res) => {
-  const { title, description } = req.body;
+  const { title, description, status } = req.body; // Получаем статус из тела запроса
   const { boardId } = req.params; // Get the boardId from the URL parameters
 
   try {
@@ -15,11 +15,14 @@ exports.addTask = async (req, res) => {
         .json({ message: 'Title and description are required' });
     }
 
+    // Убедимся, что статус передан или установим его значение по умолчанию
+    const taskStatus = status || 'Todo'; // Если статус не передан, по умолчанию "Todo"
+
     // Create a new task associated with the board
     const newTask = new Task({
       title,
       description,
-      status: 'Todo', // Set default status for new tasks
+      status: taskStatus, // Используем статус, переданный в запросе или по умолчанию
       boardId, // Associate the task with the specific board
     });
 
@@ -34,17 +37,26 @@ exports.addTask = async (req, res) => {
 
 // Get tasks for a board
 exports.getTasks = async (req, res) => {
+  const { boardId } = req.params; // Получаем boardId из параметров запроса
+  const { status } = req.query; // Получаем статус из query-параметров (например, ?status=Todo)
+
   try {
-    const { boardId } = req.params;
-    const { status } = req.query;
+    // Строим запрос к коллекции Task
+    const query = { boardId }; // Фильтр по boardId
+    if (status) {
+      query.status = status; // Добавляем фильтр по статусу, если он задан
+    }
 
-    const board = await Board.findById(boardId);
-    const tasks = status
-      ? board.tasks.filter((task) => task.status === status)
-      : board.tasks;
+    // Находим задачи по критериям
+    const tasks = await Task.find(query);
 
-    res.json(tasks);
-  } catch (err) {
+    if (!tasks || tasks.length === 0) {
+      return res.status(404).json({ message: 'No tasks found for this board' });
+    }
+
+    res.status(200).json(tasks); // Возвращаем список задач
+  } catch (error) {
+    console.error(error);
     res.status(500).json({ message: 'Server error' });
   }
 };

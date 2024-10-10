@@ -44,8 +44,8 @@ export const Item: React.FC<ItemProps> = ({ cardData }) => {
     <>
       {cardData.map((issue: CardItemTypes, index: number) => (
         <Draggable
-          key={issue.id.toString()}
-          draggableId={issue.id.toString()}
+          key={issue._id}
+          draggableId={issue._id.toString()}
           index={index}
         >
           {(provided) => (
