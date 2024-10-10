@@ -4,6 +4,7 @@ import styled from 'styled-components';
 import { Draggable } from 'react-beautiful-dnd';
 import { CardItemTypes, ItemProps } from '../types';
 import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
+import { useDeleteIssueMutation } from '../redux/boardApi';
 
 const StyledCard = styled.div`
   display: flex;
@@ -36,6 +37,17 @@ const ItemDescription = styled.div`
 `;
 
 export const Item: React.FC<ItemProps> = ({ cardData }) => {
+  const [deleteIssue] = useDeleteIssueMutation();
+
+  const handleDeleteIssue = async (boardId: number, taskId: number) => {
+    try {
+      const response = await deleteIssue({ boardId, taskId }).unwrap();
+      console.log('Task deleted:', response);
+    } catch (error) {
+      console.error('Failed to delete task:', error);
+    }
+  };
+
   if (!cardData) {
     return null;
   }
@@ -58,7 +70,10 @@ export const Item: React.FC<ItemProps> = ({ cardData }) => {
               <ItemDescription>{issue.description}</ItemDescription>
               <ButtonContainer>
                 <Button icon={<EditOutlined />} />
-                <Button icon={<DeleteOutlined />} />
+                <Button
+                  icon={<DeleteOutlined />}
+                  onClick={() => handleDeleteIssue(issue.boardId, issue._id)}
+                />
               </ButtonContainer>
             </StyledCard>
           )}
