@@ -39,7 +39,7 @@ const ItemDescription = styled.div`
 export const Item: React.FC<ItemProps> = ({ cardData }) => {
   const [deleteIssue] = useDeleteIssueMutation();
 
-  const handleDeleteIssue = async (boardId, taskId) => {
+  const handleDeleteIssue = async (boardId: number, taskId: number) => {
     try {
       const response = await deleteIssue({ boardId, taskId }).unwrap();
       console.log('Task deleted:', response);
