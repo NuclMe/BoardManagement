@@ -4,7 +4,7 @@ const Board = require('../models/Board'); // Assuming a board model exists
 // Add a task to the To-Do column of a board
 
 exports.addTask = async (req, res) => {
-  const { title, description } = req.body;
+  const { title, description, status } = req.body; // Получаем статус из тела запроса
   const { boardId } = req.params; // Get the boardId from the URL parameters
 
   try {
@@ -15,11 +15,14 @@ exports.addTask = async (req, res) => {
         .json({ message: 'Title and description are required' });
     }
 
+    // Убедимся, что статус передан или установим его значение по умолчанию
+    const taskStatus = status || 'Todo'; // Если статус не передан, по умолчанию "Todo"
+
     // Create a new task associated with the board
     const newTask = new Task({
       title,
       description,
-      status: 'Todo', // Set default status for new tasks
+      status: taskStatus, // Используем статус, переданный в запросе или по умолчанию
       boardId, // Associate the task with the specific board
     });
 

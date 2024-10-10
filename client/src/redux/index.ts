@@ -1,2 +1,4 @@
 export * from './store';
-export * from './issuesDataSlice';
+export * from './todoDataSlice';
+export * from './inProgressDataSlice';
+export * from './doneDataSlice';

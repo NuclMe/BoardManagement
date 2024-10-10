@@ -43,11 +43,7 @@ export const Item: React.FC<ItemProps> = ({ cardData }) => {
   return (
     <>
       {cardData.map((issue: CardItemTypes, index: number) => (
-        <Draggable
-          key={issue.id.toString()}
-          draggableId={issue.id.toString()}
-          index={index}
-        >
+        <Draggable key={issue._id} draggableId={issue._id} index={index}>
           {(provided) => (
             <StyledCard
               ref={provided.innerRef}

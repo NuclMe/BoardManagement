@@ -1,20 +1,18 @@
 import { configureStore } from '@reduxjs/toolkit';
-import { issuesApi } from './issuesApi';
-import issuesDataReducer from './issuesDataSlice';
-import repoInfoSlice from './repoInfoSlice';
-import openAssignedIssuesDataSlice from './openAssignedIssuesDataSlice';
-import closedIssuesDataSlice from './closedIssuesDataSlice';
+import { boardApi } from './boardApi';
+import todoDataSlice from './todoDataSlice';
+import inProgressDataSlice from './inProgressDataSlice';
+import doneDataSlice from './doneDataSlice';
 
 export const store = configureStore({
   reducer: {
-    [issuesApi.reducerPath]: issuesApi.reducer,
-    issuesData: issuesDataReducer,
-    // repoData: repoInfoSlice,
-    // assignedOpenData: openAssignedIssuesDataSlice,
-    // closedIssuesData: closedIssuesDataSlice,
+    [boardApi.reducerPath]: boardApi.reducer,
+    todoData: todoDataSlice,
+    inProgressData: inProgressDataSlice,
+    doneData: doneDataSlice,
   },
   middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware().concat(issuesApi.middleware),
+    getDefaultMiddleware().concat(boardApi.middleware),
 });
 
 export type RootState = ReturnType<typeof store.getState>;
