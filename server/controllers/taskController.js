@@ -1,5 +1,5 @@
 const Task = require('../models/Task');
-
+const Board = require('../models/Board');
 // Add a task to the To-Do column of a board
 
 exports.addTask = async (req, res) => {
@@ -98,6 +98,26 @@ exports.deleteTask = async (req, res) => {
     await Task.findByIdAndDelete(taskId); // Удаляем задачу по её id
     res.json({ message: 'Task deleted successfully' });
   } catch (err) {
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+exports.addTaskToBoard = async (req, res) => {
+  const { boardId } = req.params;
+  const { title, description, status } = req.body;
+
+  try {
+    // Создаем задачу
+    const newTask = new Task({ title, description, status, boardId });
+    const savedTask = await newTask.save();
+
+    // Добавляем задачу в массив tasks на доске
+    const board = await Board.findById(boardId);
+    board.tasks.push(savedTask._id); // Добавляем ссылку на задачу
+    await board.save();
+
+    res.status(201).json(savedTask);
+  } catch (error) {
+    console.error('Error adding task:', error);
     res.status(500).json({ message: 'Server error' });
   }
 };

@@ -54,3 +54,31 @@ exports.updateBoard = async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 };
+exports.getBoardWithTasks = async (req, res) => {
+  const { boardId } = req.params;
+
+  try {
+    const board = await Board.findById(boardId).populate('tasks'); // Подтягиваем задачи с помощью populate
+    if (!board) {
+      return res.status(404).json({ message: 'Board not found' });
+    }
+    res.json(board);
+  } catch (error) {
+    console.error('Error fetching board:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+exports.getBoardById = async (req, res) => {
+  const { boardId } = req.params; // Извлечение boardId из параметров
+
+  try {
+    const board = await Board.findById(boardId); // Поиск доски по ID
+    if (!board) {
+      return res.status(404).json({ message: 'Board not found' }); // Если доска не найдена
+    }
+    res.json(board); // Возврат найденной доски
+  } catch (error) {
+    console.error('Error fetching board:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
