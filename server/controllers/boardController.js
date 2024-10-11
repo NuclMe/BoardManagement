@@ -26,16 +26,31 @@ exports.deleteBoard = async (req, res) => {
 // Update the board, for example when moving tasks between statuses
 exports.updateBoard = async (req, res) => {
   const { boardId } = req.params;
-  const { tasks } = req.body; // Assuming tasks contain the new status of the tasks
+  const { tasks } = req.body; // Получаем массив обновленных задач
 
   try {
-    const updatedBoard = await Board.findByIdAndUpdate(
-      boardId,
-      { tasks },
-      { new: true }
-    );
+    const board = await Board.findById(boardId);
+    if (!board) {
+      return res.status(404).json({ message: 'Board not found' });
+    }
+
+    // Логика обновления каждой задачи
+    tasks.forEach((updatedTask) => {
+      const existingTaskIndex = board.tasks.findIndex(
+        (task) => task._id.toString() === updatedTask._id
+      );
+      if (existingTaskIndex !== -1) {
+        board.tasks[existingTaskIndex] = {
+          ...board.tasks[existingTaskIndex],
+          ...updatedTask,
+        }; // Обновляем задачу по ее _id
+      }
+    });
+
+    const updatedBoard = await board.save(); // Сохраняем обновленную доску
     res.json(updatedBoard);
   } catch (error) {
+    console.error('Error updating board:', error);
     res.status(500).json({ message: 'Server error' });
   }
 };

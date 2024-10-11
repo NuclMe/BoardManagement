@@ -44,10 +44,10 @@ export const boardApi = createApi({
       invalidatesTags: [{ type: 'Tasks', id: 'LIST' }],
     }),
     addIssue: builder.mutation({
-      query: ({ title, description, boardId }) => ({
+      query: ({ title, description, status, boardId }) => ({
         url: `tasks/${boardId}/addTask`,
         method: 'POST',
-        body: { title, description },
+        body: { title, description, status, boardId },
       }),
       invalidatesTags: [{ type: 'Tasks', id: 'LIST' }],
     }),
@@ -59,6 +59,13 @@ export const boardApi = createApi({
       }),
       invalidatesTags: [{ type: 'Tasks', id: 'LIST' }],
     }),
+    updateBoard: builder.mutation({
+      query: ({ data, boardId }) => ({
+        url: `boards/${boardId}`,
+        method: 'PUT',
+        body: data,
+      }),
+    }),
   }),
 });
 
@@ -69,4 +76,5 @@ export const {
   useDeleteIssueMutation,
   useAddIssueMutation,
   useEditIssueMutation,
+  useUpdateBoardMutation,
 } = boardApi;
