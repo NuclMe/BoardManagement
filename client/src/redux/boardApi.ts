@@ -1,9 +1,10 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import { API_PATH } from '../api/apiConsts';
+import { TaskTypes } from '../types';
 
 export const boardApi = createApi({
   reducerPath: 'boardApi',
-  tagTypes: 'Tasks',
+  tagTypes: ['Tasks'],
   baseQuery: fetchBaseQuery({
     baseUrl: API_PATH,
   }),
@@ -15,43 +16,48 @@ export const boardApi = createApi({
       providesTags: (result) =>
         result
           ? [
-              ...result.map((task) => ({ type: 'Tasks', id: task.id })), // динамически привязываем теги для задач
-              { type: 'Tasks', id: 'LIST' }, // аннулируем весь список
+              ...result.map((task: TaskTypes) => ({
+                type: 'Tasks',
+                id: task.id,
+              })),
+              { type: 'Tasks', id: 'LIST' },
             ]
           : [{ type: 'Tasks', id: 'LIST' }],
-      refetchOnMountOrArgChange: true,
     }),
     getInProgressIssues: builder.query({
       query: (boardId) => ({
         url: `tasks/${boardId}/tasks?status=InProgress`,
       }),
+      providesTags: [{ type: 'Tasks', id: 'LIST' }],
     }),
     getDoneIssues: builder.query({
       query: (boardId) => ({
         url: `tasks/${boardId}/tasks?status=Done`,
       }),
+      providesTags: [{ type: 'Tasks', id: 'LIST' }],
     }),
     deleteIssue: builder.mutation({
       query: ({ boardId, taskId }) => ({
         url: `tasks/${boardId}/tasks/${taskId}`,
         method: 'DELETE',
       }),
+      invalidatesTags: [{ type: 'Tasks', id: 'LIST' }],
     }),
     addIssue: builder.mutation({
       query: ({ title, description, boardId }) => ({
-        url: `tasks/${boardId.boardId}/addTask`,
+        url: `tasks/${boardId}/addTask`,
         method: 'POST',
         body: { title, description },
       }),
       invalidatesTags: [{ type: 'Tasks', id: 'LIST' }],
     }),
-
     editIssue: builder.mutation({
-      query: ({ body, boardId, taskId }) => ({
+      query: ({ title, description, boardId, taskId }) => ({
         url: `tasks/${boardId}/tasks/${taskId}`,
         method: 'PUT',
-        body,
+        body: { title, description },
       }),
+      invalidatesTags: [{ type: 'Tasks', id: 'LIST' }],
     }),
   }),
 });

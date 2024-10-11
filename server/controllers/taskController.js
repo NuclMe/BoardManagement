@@ -65,14 +65,28 @@ exports.editTask = async (req, res) => {
   const { taskId } = req.params;
   const { title, description, status } = req.body;
 
+  // Логируем все данные для проверки
+  console.log('Task ID:', taskId);
+  console.log('Received Data:', { title, description, status });
+
   try {
     const updatedTask = await Task.findByIdAndUpdate(
       taskId,
-      { title, description, status },
-      { new: true }
+      {
+        title: title || undefined,
+        description: description || undefined,
+        status: status || undefined,
+      },
+      { new: true, runValidators: true }
     );
-    res.json(updatedTask);
+
+    if (!updatedTask) {
+      return res.status(404).json({ message: 'Task not found' });
+    }
+
+    res.json(updatedTask); // Возвращаем обновленную задачу
   } catch (err) {
+    console.error('Error updating task:', err); // Логируем ошибку
     res.status(500).json({ message: 'Server error' });
   }
 };

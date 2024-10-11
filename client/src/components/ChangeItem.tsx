@@ -20,67 +20,72 @@ const StyledInputsWrapper = styled(Flex)`
   width: 100%;
 `;
 
-interface AddItemProps {
+interface ChangeItemProps {
   taskId?: string;
   initialTitle?: string;
   initialDescription?: string;
-  boardId: string;
+  boardId?: string;
+  handleCancelEdit?: () => void;
 }
 
-export const AddItem: React.FC<AddItemProps> = ({
+export const ChangeItem: React.FC<ChangeItemProps> = ({
   taskId,
   initialTitle = '',
   initialDescription = '',
+  handleCancelEdit,
 }) => {
   const [title, setTitle] = useState(initialTitle);
   const [description, setDescription] = useState(initialDescription);
   const [isShown, setIsShown] = useState(false);
-  const boardId = useSelector((state: RootState) => state.boardId);
+  const [isEdit, setIsEdit] = useState(!!taskId);
+  const boardId = useSelector((state: RootState) => state.boardId.boardId);
 
-  // Mutations for adding and editing tasks
   const [addTask] = useAddIssueMutation();
   const [editTask] = useEditIssueMutation();
 
-  // If there's a taskId, we are in "edit mode"
   const handleSave = async () => {
-    if (title && description) {
+    console.log('Saving task:', { title, description, taskId, boardId });
+
+    if (title && description && boardId) {
       try {
-        if (taskId) {
-          // Edit task
-          await editTask({ taskId, title, description, boardId }).unwrap();
+        if (isEdit && taskId) {
+          const result = await editTask({
+            taskId,
+            title,
+            description,
+            boardId,
+          }).unwrap();
+          console.log('Task edited:', result);
+
+          if (handleCancelEdit) {
+            handleCancelEdit();
+          }
         } else {
-          // Add new task
-          await addTask({ title, description, boardId }).unwrap();
+          const result = await addTask({
+            title,
+            description,
+            boardId,
+          }).unwrap();
+          console.log('New task added:', result);
+          setTitle('');
+          setDescription('');
+          setIsShown(false);
+          setIsEdit(false);
         }
-        // Clear inputs after success
-        setTitle('');
-        setDescription('');
-        setIsShown(false);
       } catch (error) {
         console.error('Error saving task:', error);
       }
-    }
-  };
-  const handleAddProduct = async () => {
-    if (title && description && boardId) {
-      try {
-        // Call the mutation with title, description, and boardId
-        await addTask({ title, description, boardId }).unwrap();
-        setTitle('');
-        setDescription('');
-        setIsShown(false);
-      } catch (error) {
-        console.error('Error adding task:', error);
-      }
+    } else {
+      console.error('Board ID is undefined!');
     }
   };
 
-  // Show form if editing or adding a new task
   useEffect(() => {
-    if (initialTitle || initialDescription) {
+    if (taskId || initialTitle || initialDescription) {
       setIsShown(true);
+      setIsEdit(!!taskId);
     }
-  }, [initialTitle, initialDescription]);
+  }, [taskId, initialTitle, initialDescription]);
 
   const renderContent = () => {
     if (isShown) {
@@ -106,14 +111,14 @@ export const AddItem: React.FC<AddItemProps> = ({
             <Button
               style={{ width: '200px' }}
               size="large"
-              onClick={handleAddProduct}
+              onClick={handleSave}
             >
-              {taskId ? 'Update' : 'Save'}
+              {isEdit ? 'Update' : 'Save'}
             </Button>
             <Button
               style={{ width: '200px' }}
               size="large"
-              onClick={() => setIsShown(false)}
+              onClick={isEdit ? handleCancelEdit : () => setIsShown(false)}
             >
               Cancel
             </Button>
@@ -121,14 +126,14 @@ export const AddItem: React.FC<AddItemProps> = ({
         </StyledInputsWrapper>
       );
     }
-    return (
+    return !isEdit ? (
       <Button
         style={{ margin: '50px' }}
         icon={<PlusOutlined />}
         size="large"
         onClick={() => setIsShown(true)}
       />
-    );
+    ) : null;
   };
 
   return <StyledCard justify="center">{renderContent()}</StyledCard>;
