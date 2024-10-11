@@ -1,5 +1,6 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import { API_PATH } from '../api/apiConsts';
+import { TaskTypes } from '../types';
 
 export const boardApi = createApi({
   reducerPath: 'boardApi',
@@ -15,7 +16,10 @@ export const boardApi = createApi({
       providesTags: (result) =>
         result
           ? [
-              ...result.map((task) => ({ type: 'Tasks', id: task.id })),
+              ...result.map((task: TaskTypes) => ({
+                type: 'Tasks',
+                id: task.id,
+              })),
               { type: 'Tasks', id: 'LIST' },
             ]
           : [{ type: 'Tasks', id: 'LIST' }],

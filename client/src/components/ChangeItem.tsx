@@ -20,15 +20,15 @@ const StyledInputsWrapper = styled(Flex)`
   width: 100%;
 `;
 
-interface AddItemProps {
+interface ChangeItemProps {
   taskId?: string;
   initialTitle?: string;
   initialDescription?: string;
-  boardId: string;
+  boardId?: string;
   handleCancelEdit?: () => void;
 }
 
-export const AddItem: React.FC<AddItemProps> = ({
+export const ChangeItem: React.FC<ChangeItemProps> = ({
   taskId,
   initialTitle = '',
   initialDescription = '',

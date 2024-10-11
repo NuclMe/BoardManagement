@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import { Item } from './Item';
 import { Droppable } from 'react-beautiful-dnd';
 import { ColumnPropsTypes } from '../types';
-import { AddItem } from './AddItem';
+import { ChangeItem } from './ChangeItem';
 
 const StyledColumnInner = styled(Flex)`
   background: #f0f2f5;
@@ -41,7 +41,7 @@ export const Column: React.FC<ColumnPropsTypes> = ({
               </div>
             )}
           </Droppable>
-          {name === 'To Do' && <AddItem />}
+          {name === 'To Do' && <ChangeItem />}
         </StyledColumnInner>
       </Col>
     </>

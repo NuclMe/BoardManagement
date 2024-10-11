@@ -5,7 +5,7 @@ import { Draggable } from 'react-beautiful-dnd';
 import { CardItemTypes, ItemProps } from '../types';
 import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import { useDeleteIssueMutation } from '../redux/boardApi';
-import { AddItem } from './AddItem';
+import { ChangeItem } from './ChangeItem';
 
 const StyledCard = styled.div`
   display: flex;
@@ -75,7 +75,7 @@ export const Item: React.FC<ItemProps> = ({ cardData }) => {
               {...provided.dragHandleProps}
             >
               {isEditing === index ? (
-                <AddItem
+                <ChangeItem
                   handleCancelEdit={handleCancelEdit}
                   taskId={issue._id.toString()}
                   initialTitle={issue.title}
