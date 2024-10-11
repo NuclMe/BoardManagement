@@ -5,6 +5,7 @@ import { Item } from './Item';
 import { Droppable } from 'react-beautiful-dnd';
 import { ColumnPropsTypes } from '../types';
 import { AddItem } from './AddItem';
+
 const StyledColumnInner = styled(Flex)`
   background: #f0f2f5;
   padding: 20px;

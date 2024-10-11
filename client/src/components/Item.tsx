@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Button } from 'antd';
 import styled from 'styled-components';
 import { Draggable } from 'react-beautiful-dnd';
 import { CardItemTypes, ItemProps } from '../types';
 import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import { useDeleteIssueMutation } from '../redux/boardApi';
+import { AddItem } from './AddItem';
 
 const StyledCard = styled.div`
   display: flex;
@@ -14,8 +15,6 @@ const StyledCard = styled.div`
   padding: 15px;
   background: white;
   margin-bottom: 15px;
-  max-height: 170px;
-  height: 100%;
 `;
 
 const StyledItemTitle = styled.div`
@@ -38,6 +37,7 @@ const ItemDescription = styled.div`
 
 export const Item: React.FC<ItemProps> = ({ cardData }) => {
   const [deleteIssue] = useDeleteIssueMutation();
+  const [isEditing, setIsEditing] = useState<number | null>(null);
 
   const handleDeleteIssue = async (boardId: number, taskId: number) => {
     try {
@@ -46,6 +46,14 @@ export const Item: React.FC<ItemProps> = ({ cardData }) => {
     } catch (error) {
       console.error('Failed to delete task:', error);
     }
+  };
+
+  const handleEditClick = (index: number) => {
+    setIsEditing(index);
+  };
+
+  const handleCancelEdit = () => {
+    setIsEditing(null);
   };
 
   if (!cardData) {
@@ -66,15 +74,32 @@ export const Item: React.FC<ItemProps> = ({ cardData }) => {
               {...provided.draggableProps}
               {...provided.dragHandleProps}
             >
-              <StyledItemTitle>{issue.title}</StyledItemTitle>
-              <ItemDescription>{issue.description}</ItemDescription>
-              <ButtonContainer>
-                <Button icon={<EditOutlined />} />
-                <Button
-                  icon={<DeleteOutlined />}
-                  onClick={() => handleDeleteIssue(issue.boardId, issue._id)}
+              {isEditing === index ? (
+                <AddItem
+                  handleCancelEdit={handleCancelEdit}
+                  taskId={issue._id.toString()}
+                  initialTitle={issue.title}
+                  initialDescription={issue.description}
+                  boardId={issue.boardId.toString()}
                 />
-              </ButtonContainer>
+              ) : (
+                <>
+                  <StyledItemTitle>{issue.title}</StyledItemTitle>
+                  <ItemDescription>{issue.description}</ItemDescription>
+                  <ButtonContainer>
+                    <Button
+                      icon={<EditOutlined />}
+                      onClick={() => handleEditClick(index)}
+                    />
+                    <Button
+                      icon={<DeleteOutlined />}
+                      onClick={() =>
+                        handleDeleteIssue(issue.boardId, issue._id)
+                      }
+                    />
+                  </ButtonContainer>
+                </>
+              )}
             </StyledCard>
           )}
         </Draggable>

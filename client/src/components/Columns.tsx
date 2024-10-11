@@ -18,25 +18,12 @@ export const Columns: React.FC = () => {
   const [doneList, setDoneList] = useState<CardItemTypes[]>([]);
 
   useEffect(() => {
-    // const savedTodo = localStorage.getItem('todoList');
-    // const savedInProgress = localStorage.getItem('inProgressList');
-    // const savedDone = localStorage.getItem('doneList');
-
     setTodoList(todoData || []);
 
     setInProgressList(inProgressData || []);
 
     setDoneList(doneData || []);
   }, [todoData, inProgressData, doneData]);
-
-  // useEffect(() => {
-  //   if (todoList.length > 0)
-  //     localStorage.setItem('todoList', JSON.stringify(todoList));
-  //   if (inProgressList.length > 0)
-  //     localStorage.setItem('inProgressList', JSON.stringify(inProgressList));
-  //   if (doneList.length > 0)
-  //     localStorage.setItem('doneList', JSON.stringify(doneList));
-  // }, [todoList, inProgressList, doneList]);
 
   const onDragEnd = ({ source, destination }: DropResult) => {
     if (!destination) return;
