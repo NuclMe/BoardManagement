@@ -5,6 +5,7 @@ import { useSelector } from 'react-redux';
 import { DragDropContext, DropResult } from 'react-beautiful-dnd';
 import { CardItemTypes } from '../types';
 import { RootState } from '../redux/store';
+import { useUpdateTaskStatusMutation } from '../redux/boardApi';
 
 export const Columns: React.FC = () => {
   const todoData = useSelector((state: RootState) => state.todoData.data);
@@ -12,6 +13,8 @@ export const Columns: React.FC = () => {
     (state: RootState) => state.inProgressData.data
   );
   const doneData = useSelector((state: RootState) => state.doneData.data);
+  const [updateTaskStatus] = useUpdateTaskStatusMutation();
+  const boardId = useSelector((state: RootState) => state.boardId.boardId);
 
   const [todoList, setTodoList] = useState<CardItemTypes[]>([]);
   const [inProgressList, setInProgressList] = useState<CardItemTypes[]>([]);
@@ -25,50 +28,27 @@ export const Columns: React.FC = () => {
     setDoneList(doneData || []);
   }, [todoData, inProgressData, doneData]);
 
-  const onDragEnd = ({ source, destination }: DropResult) => {
+  const onDragEnd = async ({ source, destination }: DropResult) => {
     if (!destination) return;
 
-    if (source.droppableId === destination.droppableId) {
-      const newList = reorderList(
-        source.droppableId,
-        source.index,
-        destination.index
-      );
-      updateListByDroppableId(source.droppableId, newList);
-    } else {
-      const result = moveBetweenLists(source, destination);
-      updateListByDroppableId(source.droppableId, result[source.droppableId]);
-      updateListByDroppableId(
-        destination.droppableId,
-        result[destination.droppableId]
-      );
+    const taskMoved = getListByDroppableId(source.droppableId)[source.index];
+    let newStatus;
+
+    if (destination.droppableId === 'col-1') newStatus = 'Todo';
+    if (destination.droppableId === 'col-2') newStatus = 'InProgress';
+    if (destination.droppableId === 'col-3') newStatus = 'Done';
+
+    if (source.droppableId !== destination.droppableId && taskMoved) {
+      try {
+        await updateTaskStatus({
+          boardId: boardId,
+          taskId: taskMoved._id,
+          status: newStatus,
+        });
+      } catch (error) {
+        console.error('Error updating task status:', error);
+      }
     }
-  };
-
-  const reorderList = (
-    droppableId: string,
-    startIndex: number,
-    endIndex: number
-  ): CardItemTypes[] => {
-    const list = [...getListByDroppableId(droppableId)];
-    const [removed] = list.splice(startIndex, 1);
-    list.splice(endIndex, 0, removed);
-    return list;
-  };
-
-  const moveBetweenLists = (
-    source: { droppableId: string; index: number },
-    destination: { droppableId: string; index: number }
-  ) => {
-    const sourceList = [...getListByDroppableId(source.droppableId)];
-    const destinationList = [...getListByDroppableId(destination.droppableId)];
-    const [removed] = sourceList.splice(source.index, 1);
-    destinationList.splice(destination.index, 0, removed);
-
-    return {
-      [source.droppableId]: sourceList,
-      [destination.droppableId]: destinationList,
-    };
   };
 
   const getListByDroppableId = (droppableId: string): CardItemTypes[] => {
@@ -76,15 +56,6 @@ export const Columns: React.FC = () => {
     if (droppableId === 'col-2') return inProgressList;
     if (droppableId === 'col-3') return doneList;
     return [];
-  };
-
-  const updateListByDroppableId = (
-    droppableId: string,
-    newList: CardItemTypes[]
-  ) => {
-    if (droppableId === 'col-1') setTodoList(newList);
-    if (droppableId === 'col-2') setInProgressList(newList);
-    if (droppableId === 'col-3') setDoneList(newList);
   };
 
   if (!todoList.length && !inProgressList.length && !doneList.length) {
