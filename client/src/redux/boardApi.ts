@@ -45,7 +45,7 @@ export const boardApi = createApi({
     }),
     addIssue: builder.mutation({
       query: ({ title, description, status, boardId }) => ({
-        url: `tasks/${boardId}/addTask`,
+        url: `tasks/${boardId}/addTaskToBoard`,
         method: 'POST',
         body: { title, description, status, boardId },
       }),

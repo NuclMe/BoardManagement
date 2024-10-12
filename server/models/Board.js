@@ -1,12 +1,14 @@
 const mongoose = require('mongoose');
 
+const TaskSchema = new mongoose.Schema({
+  _id: mongoose.Schema.Types.ObjectId,
+  title: { type: String, required: true },
+  description: { type: String, required: true },
+  status: { type: String, required: true, default: 'Todo' },
+});
+
 const BoardSchema = new mongoose.Schema({
-  tasks: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Task', // Ссылка на коллекцию tasks
-    },
-  ],
+  tasks: [TaskSchema], // Массив с полной структурой задачи
   createdAt: { type: Date, default: Date.now },
 });
 

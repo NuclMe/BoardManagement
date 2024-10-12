@@ -6,7 +6,10 @@ import { DragDropContext, DropResult } from 'react-beautiful-dnd';
 import { CardItemTypes } from '../types';
 import { RootState } from '../redux/store';
 import { setUpdateStatus } from '../redux/updateTaskSlice';
-import { useUpdateBoardMutation } from '../redux/boardApi';
+import {
+  useUpdateBoardMutation,
+  useEditIssueMutation,
+} from '../redux/boardApi';
 
 export const Columns: React.FC = () => {
   const dispatch = useDispatch();
@@ -32,11 +35,15 @@ export const Columns: React.FC = () => {
     setDoneList(doneData || []);
   }, [todoData, inProgressData, doneData]);
 
-  const onDragEnd = ({ source, destination }: DropResult) => {
+  const onDragEnd = async ({ source, destination }: DropResult) => {
     if (!destination) return;
 
-    // Если таск перемещён в ту же колонку
+    const { boardId } = useSelector((state) => state.board); // Получаем boardId
+
+    const [editIssue] = useEditIssueMutation(); // Используем мутацию для обновления задачи
+
     if (source.droppableId === destination.droppableId) {
+      // Перетаскивание внутри одной колонки
       const newList = reorderList(
         source.droppableId,
         source.index,
@@ -44,29 +51,39 @@ export const Columns: React.FC = () => {
       );
       updateListByDroppableId(source.droppableId, newList);
     } else {
-      // Если таск перемещён в другую колонку
+      // Перетаскивание в другую колонку
       const result = moveBetweenLists(source, destination);
 
-      // Копируем таск и обновляем статус
-      const task = { ...result[destination.droppableId][destination.index] }; // Создаем копию таска
+      const task = { ...result[destination.droppableId][destination.index] }; // Копируем задачу
+
+      // Определяем новый статус на основе колонки
       let newStatus = '';
       if (destination.droppableId === 'col-1') newStatus = 'Todo';
       if (destination.droppableId === 'col-2') newStatus = 'InProgress';
       if (destination.droppableId === 'col-3') newStatus = 'Done';
 
-      task.status = newStatus; // Обновляем статус задачи в копии
+      task.status = newStatus; // Обновляем статус задачи
 
-      // Обновляем списки с новой задачей
-      result[destination.droppableId][destination.index] = task; // Вставляем обновленный таск обратно в массив
+      try {
+        // Отправляем запрос на сервер для обновления задачи
+        await editIssue({
+          boardId,
+          taskId: task._id, // ID задачи
+          status: newStatus, // Новый статус
+          title: task.title,
+          description: task.description,
+        }).unwrap();
 
-      updateListByDroppableId(source.droppableId, result[source.droppableId]);
-      updateListByDroppableId(
-        destination.droppableId,
-        result[destination.droppableId]
-      );
-
-      // Устанавливаем флаг изменений
-      dispatch(setUpdateStatus(true));
+        // Обновляем задачу в стейте
+        result[destination.droppableId][destination.index] = task;
+        updateListByDroppableId(source.droppableId, result[source.droppableId]);
+        updateListByDroppableId(
+          destination.droppableId,
+          result[destination.droppableId]
+        );
+      } catch (error) {
+        console.error('Ошибка при обновлении задачи на сервере:', error);
+      }
     }
   };
 
@@ -119,9 +136,15 @@ export const Columns: React.FC = () => {
   const handleUpdate = async () => {
     const allTasks = [...todoList, ...inProgressList, ...doneList]; // Собираем все задачи в один массив
 
+    // Проверяем, что каждая задача имеет статус
+    allTasks.forEach((task) => {
+      if (!task.status) {
+        console.error(`Task ID: ${task._id} has no status!`);
+      }
+    });
+
     try {
       // Отправляем данные на сервер с помощью мутации
-      console.log(allTasks);
       await updateBoard({ tasks: allTasks, boardId });
       dispatch(setUpdateStatus(false)); // Сбрасываем флаг изменений после успешного обновления
     } catch (error) {

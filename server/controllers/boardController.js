@@ -1,5 +1,5 @@
 const Board = require('../models/Board');
-
+const mongoose = require('mongoose');
 // Create a new board
 exports.createBoard = async (req, res) => {
   try {
@@ -23,10 +23,14 @@ exports.deleteBoard = async (req, res) => {
   }
 };
 
-// Update the board, for example when moving tasks between statuses
 exports.updateBoard = async (req, res) => {
   const { boardId } = req.params;
   const { tasks } = req.body; // Получаем массив обновленных задач
+  console.log('Received data:', req.body); // Выводим все данные, которые пришли в запросе
+  console.log('Tasks:', tasks);
+  if (!Array.isArray(tasks)) {
+    return res.status(400).json({ message: 'Tasks must be an array' });
+  }
 
   try {
     const board = await Board.findById(boardId);
@@ -54,6 +58,7 @@ exports.updateBoard = async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 };
+
 exports.getBoardWithTasks = async (req, res) => {
   const { boardId } = req.params;
 
@@ -79,6 +84,44 @@ exports.getBoardById = async (req, res) => {
     res.json(board); // Возврат найденной доски
   } catch (error) {
     console.error('Error fetching board:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+exports.addTaskToBoard = async (req, res) => {
+  const { boardId } = req.params;
+  const { title, description } = req.body;
+
+  try {
+    // Найдем доску по ID
+    const board = await Board.findById(boardId);
+    if (!board) {
+      return res.status(404).json({ message: 'Board not found' });
+    }
+
+    // Проверяем наличие title и description
+    if (!title || !description) {
+      return res
+        .status(400)
+        .json({ message: 'Title and description are required' });
+    }
+
+    // Создаем новую задачу
+    const newTask = {
+      _id: new mongoose.Types.ObjectId(), // Генерация нового ID для задачи
+      title,
+      description,
+      status: 'Todo', // Статус по умолчанию
+    };
+
+    // Добавляем задачу в массив tasks
+    board.tasks.push(newTask);
+
+    // Сохраняем изменения
+    await board.save();
+
+    res.status(201).json(newTask); // Возвращаем созданную задачу
+  } catch (error) {
+    console.error('Error adding task to board:', error);
     res.status(500).json({ message: 'Server error' });
   }
 };
