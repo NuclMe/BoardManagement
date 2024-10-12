@@ -1,36 +1,43 @@
 const Task = require('../models/Task');
-
-// Add a task to the To-Do column of a board
+const Board = require('../models/Board');
+const mongoose = require('mongoose');
 
 exports.addTask = async (req, res) => {
-  const { title, description, status } = req.body; // Получаем статус из тела запроса
-  const { boardId } = req.params; // Get the boardId from the URL parameters
+  const { title, description } = req.body; // Мы будем получать только title и description
+  const { boardId } = req.params;
 
   try {
-    // Check if title and description are provided
+    // Проверяем, что title и description присутствуют
     if (!title || !description) {
       return res
         .status(400)
         .json({ message: 'Title and description are required' });
     }
 
-    // Убедимся, что статус передан или установим его значение по умолчанию
-    const taskStatus = status || 'Todo'; // Если статус не передан, по умолчанию "Todo"
+    // Получаем доску по ID
+    const board = await Board.findById(boardId);
+    if (!board) {
+      return res.status(404).json({ message: 'Board not found' });
+    }
 
-    // Create a new task associated with the board
-    const newTask = new Task({
+    // Создаем новую задачу с дефолтным статусом 'ToDo'
+    const newTask = {
+      _id: new mongoose.Types.ObjectId(), // Генерация нового ObjectId
       title,
       description,
-      status: taskStatus, // Используем статус, переданный в запросе или по умолчанию
-      boardId, // Associate the task with the specific board
-    });
+      status: 'Todo', // Статус по умолчанию
+    };
 
-    // Save the new task to the database
-    const savedTask = await newTask.save();
-    res.status(201).json(savedTask); // Send the saved task as response
+    // Добавляем новую задачу в массив задач доски
+    board.tasks.push(newTask);
+
+    // Сохраняем изменения
+    await board.save();
+
+    res.status(201).json(board.tasks); // Возвращаем обновленный список задач
   } catch (error) {
-    console.error(error); // Log the error for debugging
-    res.status(500).json({ message: 'Server error' }); // Send server error response
+    console.error('Error adding task:', error);
+    res.status(500).json({ message: 'Server error' });
   }
 };
 
@@ -98,6 +105,26 @@ exports.deleteTask = async (req, res) => {
     await Task.findByIdAndDelete(taskId); // Удаляем задачу по её id
     res.json({ message: 'Task deleted successfully' });
   } catch (err) {
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+exports.addTaskToBoard = async (req, res) => {
+  const { boardId } = req.params;
+  const { title, description, status } = req.body;
+
+  try {
+    // Создаем задачу
+    const newTask = new Task({ title, description, status, boardId });
+    const savedTask = await newTask.save();
+
+    // Добавляем задачу в массив tasks на доске
+    const board = await Board.findById(boardId);
+    board.tasks.push(savedTask._id); // Добавляем ссылку на задачу
+    await board.save();
+
+    res.status(201).json(savedTask);
+  } catch (error) {
+    console.error('Error adding task:', error);
     res.status(500).json({ message: 'Server error' });
   }
 };

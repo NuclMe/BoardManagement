@@ -44,7 +44,7 @@ export const ChangeItem: React.FC<ChangeItemProps> = ({
   const [editTask] = useEditIssueMutation();
 
   const handleSave = async () => {
-    console.log('Saving task:', { title, description, taskId, boardId });
+    console.log('Saving task:', { title, description, boardId });
 
     if (title && description && boardId) {
       try {
@@ -65,8 +65,11 @@ export const ChangeItem: React.FC<ChangeItemProps> = ({
             title,
             description,
             boardId,
+            status: 'Todo', // Добавляем статус по умолчанию
           }).unwrap();
           console.log('New task added:', result);
+
+          // Сброс значений
           setTitle('');
           setDescription('');
           setIsShown(false);

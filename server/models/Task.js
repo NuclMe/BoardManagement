@@ -1,10 +1,14 @@
 const mongoose = require('mongoose');
 
-const TaskSchema = new mongoose.Schema({
+const taskSchema = new mongoose.Schema({
   title: { type: String, required: true },
   description: { type: String, required: true },
-  status: { type: String, required: true }, // default column is 'Todo'
-  boardId: { type: mongoose.Schema.Types.ObjectId, required: true },
+  status: { type: String, default: 'Todo' },
+  boardId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Board', // Ссылка на коллекцию boards
+    required: true,
+  },
 });
 
-module.exports = mongoose.model('Task', TaskSchema);
+module.exports = mongoose.model('Task', taskSchema);
