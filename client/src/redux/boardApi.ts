@@ -59,6 +59,14 @@ export const boardApi = createApi({
       }),
       invalidatesTags: [{ type: 'Tasks', id: 'LIST' }],
     }),
+    updateTaskStatus: builder.mutation({
+      query: ({ boardId, taskId, status }) => ({
+        url: `/tasks/${boardId}/tasks/${taskId}/status`,
+        method: 'PUT',
+        body: { status },
+      }),
+      invalidatesTags: [{ type: 'Tasks', id: 'LIST' }],
+    }),
   }),
 });
 
@@ -69,4 +77,5 @@ export const {
   useDeleteIssueMutation,
   useAddIssueMutation,
   useEditIssueMutation,
+  useUpdateTaskStatusMutation,
 } = boardApi;

@@ -101,3 +101,25 @@ exports.deleteTask = async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 };
+// Update task status
+exports.updateTaskStatus = async (req, res) => {
+  const { taskId } = req.params; // Получаем taskId из параметров URL
+  const { status } = req.body; // Получаем новый статус из тела запроса
+
+  try {
+    const updatedTask = await Task.findByIdAndUpdate(
+      taskId,
+      { status },
+      { new: true } // Опция new: true возвращает обновленный объект
+    );
+
+    if (!updatedTask) {
+      return res.status(404).json({ message: 'Task not found' });
+    }
+
+    res.json(updatedTask);
+  } catch (error) {
+    console.error('Error updating task status:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
