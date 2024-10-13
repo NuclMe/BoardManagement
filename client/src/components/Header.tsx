@@ -51,12 +51,10 @@ export const Header: React.FC<HeaderProps> = ({ setIsCreated, setHasData }) => {
         dispatch(setBoardId(localBoardId));
       }
 
-      // Устанавливаем флаг, что данные получены
       setHasData(true);
     } catch (error) {
       console.error('Error fetching issues:', error);
 
-      // В случае ошибки тоже диспатчим пустые массивы, чтобы не ломалось приложение
       dispatch(setTodoData([]));
       dispatch(setInProgressIssues([]));
       dispatch(setDoneIssues([]));

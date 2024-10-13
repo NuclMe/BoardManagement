@@ -9,6 +9,6 @@ const router = express.Router();
 
 router.post('/create', createBoard); // Create a new board
 router.delete('/:boardId', deleteBoard); // Delete a board
-router.put('/:boardId', updateBoard); // Update a board (e.g., moving tasks)
+router.put('/:boardId', updateBoard); // Update a board
 
 module.exports = router;

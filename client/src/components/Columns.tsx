@@ -72,7 +72,7 @@ export const Columns: React.FC<ColumnsProps> = ({ isCreated }) => {
   };
 
   const handleBoardDeleted = () => {
-    setIsBoardDeleted(true); // Устанавливаем состояние после удаления доски
+    setIsBoardDeleted(true);
   };
 
   return (

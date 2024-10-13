@@ -1,59 +1,51 @@
 const Task = require('../models/Task');
 
-// Add a task to the To-Do column of a board
-
 exports.addTask = async (req, res) => {
-  const { title, description, status } = req.body; // Получаем статус из тела запроса
-  const { boardId } = req.params; // Get the boardId from the URL parameters
+  const { title, description, status } = req.body;
+  const { boardId } = req.params;
 
   try {
-    // Check if title and description are provided
     if (!title || !description) {
       return res
         .status(400)
         .json({ message: 'Title and description are required' });
     }
 
-    // Убедимся, что статус передан или установим его значение по умолчанию
-    const taskStatus = status || 'Todo'; // Если статус не передан, по умолчанию "Todo"
+    const taskStatus = status || 'Todo';
 
-    // Create a new task associated with the board
     const newTask = new Task({
       title,
       description,
-      status: taskStatus, // Используем статус, переданный в запросе или по умолчанию
-      boardId, // Associate the task with the specific board
+      status: taskStatus,
+      boardId,
     });
 
-    // Save the new task to the database
     const savedTask = await newTask.save();
-    res.status(201).json(savedTask); // Send the saved task as response
+    res.status(201).json(savedTask);
   } catch (error) {
-    console.error(error); // Log the error for debugging
-    res.status(500).json({ message: 'Server error' }); // Send server error response
+    console.error(error);
+    res.status(500).json({ message: 'Server error' });
   }
 };
 
 // Get tasks for a board
 exports.getTasks = async (req, res) => {
-  const { boardId } = req.params; // Получаем boardId из параметров запроса
-  const { status } = req.query; // Получаем статус из query-параметров (например, ?status=Todo)
+  const { boardId } = req.params;
+  const { status } = req.query;
 
   try {
-    // Строим запрос к коллекции Task
-    const query = { boardId }; // Фильтр по boardId
+    const query = { boardId };
     if (status) {
-      query.status = status; // Добавляем фильтр по статусу, если он задан
+      query.status = status;
     }
 
-    // Находим задачи по критериям
     const tasks = await Task.find(query);
 
     if (!tasks || tasks.length === 0) {
       return res.status(404).json({ message: 'No tasks found for this board' });
     }
 
-    res.status(200).json(tasks); // Возвращаем список задач
+    res.status(200).json(tasks);
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Server error' });
@@ -65,7 +57,6 @@ exports.editTask = async (req, res) => {
   const { taskId } = req.params;
   const { title, description, status } = req.body;
 
-  // Логируем все данные для проверки
   console.log('Task ID:', taskId);
   console.log('Received Data:', { title, description, status });
 
@@ -84,18 +75,18 @@ exports.editTask = async (req, res) => {
       return res.status(404).json({ message: 'Task not found' });
     }
 
-    res.json(updatedTask); // Возвращаем обновленную задачу
+    res.json(updatedTask);
   } catch (err) {
-    console.error('Error updating task:', err); // Логируем ошибку
+    console.error('Error updating task:', err);
     res.status(500).json({ message: 'Server error' });
   }
 };
 
 // Delete a task
 exports.deleteTask = async (req, res) => {
-  const { taskId } = req.params; // Получаем taskId из параметров
+  const { taskId } = req.params;
   try {
-    await Task.findByIdAndDelete(taskId); // Удаляем задачу по её id
+    await Task.findByIdAndDelete(taskId);
     res.json({ message: 'Task deleted successfully' });
   } catch (err) {
     res.status(500).json({ message: 'Server error' });
@@ -103,14 +94,14 @@ exports.deleteTask = async (req, res) => {
 };
 // Update task status
 exports.updateTaskStatus = async (req, res) => {
-  const { taskId } = req.params; // Получаем taskId из параметров URL
-  const { status } = req.body; // Получаем новый статус из тела запроса
+  const { taskId } = req.params;
+  const { status } = req.body;
 
   try {
     const updatedTask = await Task.findByIdAndUpdate(
       taskId,
       { status },
-      { new: true } // Опция new: true возвращает обновленный объект
+      { new: true }
     );
 
     if (!updatedTask) {

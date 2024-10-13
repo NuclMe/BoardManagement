@@ -3,7 +3,7 @@ const Board = require('../models/Board');
 // Create a new board
 exports.createBoard = async (req, res) => {
   try {
-    const newBoard = new Board(); // No name, just creating a new board with an ID
+    const newBoard = new Board();
     const savedBoard = await newBoard.save();
     res.status(201).json(savedBoard);
   } catch (error) {
@@ -11,7 +11,6 @@ exports.createBoard = async (req, res) => {
   }
 };
 
-// Delete a board by its ID
 exports.deleteBoard = async (req, res) => {
   const { boardId } = req.params;
 
@@ -26,7 +25,7 @@ exports.deleteBoard = async (req, res) => {
 // Update the board, for example when moving tasks between statuses
 exports.updateBoard = async (req, res) => {
   const { boardId } = req.params;
-  const { tasks } = req.body; // Assuming tasks contain the new status of the tasks
+  const { tasks } = req.body;
 
   try {
     const updatedBoard = await Board.findByIdAndUpdate(
