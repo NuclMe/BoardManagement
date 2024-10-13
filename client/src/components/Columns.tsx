@@ -7,7 +7,11 @@ import { CardItemTypes } from '../types';
 import { RootState } from '../redux/store';
 import { useUpdateTaskStatusMutation } from '../redux/boardApi';
 
-export const Columns: React.FC = () => {
+interface ColumnsProps {
+  isCreated: boolean; // Пропс для проверки, создана ли доска
+}
+
+export const Columns: React.FC<ColumnsProps> = ({ isCreated }) => {
   const todoData = useSelector((state: RootState) => state.todoData.data);
   const inProgressData = useSelector(
     (state: RootState) => state.inProgressData.data
@@ -21,12 +25,18 @@ export const Columns: React.FC = () => {
   const [doneList, setDoneList] = useState<CardItemTypes[]>([]);
 
   useEffect(() => {
-    setTodoList(todoData || []);
-
-    setInProgressList(inProgressData || []);
-
-    setDoneList(doneData || []);
-  }, [todoData, inProgressData, doneData]);
+    // Если isCreated = false, загружаем предыдущие данные
+    if (!isCreated) {
+      setTodoList(todoData || []);
+      setInProgressList(inProgressData || []);
+      setDoneList(doneData || []);
+    } else {
+      // Если isCreated = true, задаем пустые массивы
+      setTodoList([]);
+      setInProgressList([]);
+      setDoneList([]);
+    }
+  }, [todoData, inProgressData, doneData, isCreated]);
 
   const onDragEnd = async ({ source, destination }: DropResult) => {
     if (!destination) return;
@@ -57,10 +67,6 @@ export const Columns: React.FC = () => {
     if (droppableId === 'col-3') return doneList;
     return [];
   };
-
-  if (!todoList.length && !inProgressList.length && !doneList.length) {
-    return null;
-  }
 
   return (
     <DragDropContext onDragEnd={onDragEnd}>
