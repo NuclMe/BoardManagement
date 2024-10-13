@@ -67,6 +67,13 @@ export const boardApi = createApi({
       }),
       invalidatesTags: [{ type: 'Tasks', id: 'LIST' }],
     }),
+    createBoard: builder.mutation({
+      query: () => ({
+        url: `/boards/create`,
+        method: 'POST',
+      }),
+      invalidatesTags: [{ type: 'Tasks', id: 'LIST' }],
+    }),
   }),
 });
 
@@ -78,4 +85,5 @@ export const {
   useAddIssueMutation,
   useEditIssueMutation,
   useUpdateTaskStatusMutation,
+  useCreateBoardMutation,
 } = boardApi;

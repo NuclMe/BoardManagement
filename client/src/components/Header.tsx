@@ -10,12 +10,22 @@ import {
   setInProgressIssues,
   setDoneIssues,
   setBoardId,
+  setCreatedBoardId,
 } from '../redux';
-import { Input, Button, Flex } from 'antd';
+import { Input, Button, Flex, Modal } from 'antd';
+import { useCreateBoardMutation } from '../redux/boardApi';
 
-export const Header: React.FC = () => {
+interface HeaderProps {
+  setIsCreated: (value: boolean) => void; // Пропс для обновления состояния в App
+  setHasData: (value: boolean) => void;
+}
+
+export const Header: React.FC<HeaderProps> = ({ setIsCreated, setHasData }) => {
   const [localBoardId, setLocalBoardId] = useState<string>();
+
+  const [isModalVisible, setIsModalVisible] = useState(false);
   const dispatch = useDispatch();
+  const [createBoard] = useCreateBoardMutation();
 
   const [triggerGetTodoIssues] = useLazyGetTodoIssuesQuery();
   const [triggerGetGetInProgressIssues] = useLazyGetInProgressIssuesQuery();
@@ -24,19 +34,54 @@ export const Header: React.FC = () => {
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setLocalBoardId(e.target.value);
   };
-  const getIssues = async () => {
-    const { data } = await triggerGetTodoIssues(localBoardId);
-    const { data: inProgressIssues } =
-      await triggerGetGetInProgressIssues(localBoardId);
-    const { data: doneIssues } = await triggerGetDoneIssues(localBoardId);
 
-    if (data && inProgressIssues && doneIssues && localBoardId) {
-      dispatch(setTodoData(data));
-      dispatch(setInProgressIssues(inProgressIssues));
-      dispatch(setDoneIssues(doneIssues));
-      dispatch(setBoardId(localBoardId));
+  const getIssues = async () => {
+    try {
+      const { data: todoIssues } = await triggerGetTodoIssues(localBoardId);
+      const { data: inProgressIssues } =
+        await triggerGetGetInProgressIssues(localBoardId);
+      const { data: doneIssues } = await triggerGetDoneIssues(localBoardId);
+
+      // Проверяем, есть ли данные для каждой категории и диспатчим пустые массивы, если данных нет
+      dispatch(setTodoData(todoIssues ?? []));
+      dispatch(setInProgressIssues(inProgressIssues ?? []));
+      dispatch(setDoneIssues(doneIssues ?? []));
+
+      if (localBoardId) {
+        dispatch(setBoardId(localBoardId));
+      }
+
+      // Устанавливаем флаг, что данные получены
+      setHasData(true);
+    } catch (error) {
+      console.error('Error fetching issues:', error);
+
+      // В случае ошибки тоже диспатчим пустые массивы, чтобы не ломалось приложение
+      dispatch(setTodoData([]));
+      dispatch(setInProgressIssues([]));
+      dispatch(setDoneIssues([]));
     }
   };
+
+  const handleCreateBoard = async () => {
+    try {
+      const response = await createBoard().unwrap();
+      dispatch(setCreatedBoardId(response._id));
+
+      setIsCreated(true);
+      if (response && response._id) {
+        setLocalBoardId(response._id);
+        setIsModalVisible(true);
+      }
+    } catch (error) {
+      console.error('Error creating board:', error);
+    }
+  };
+
+  const handleModalClose = () => {
+    setIsModalVisible(false);
+  };
+
   return (
     <header>
       <Flex gap="large">
@@ -58,10 +103,20 @@ export const Header: React.FC = () => {
           size="middle"
           color="default"
           variant="solid"
+          onClick={handleCreateBoard}
         >
           Create board
         </Button>
       </Flex>
+      <Modal
+        title="Board Created"
+        visible={isModalVisible}
+        onOk={handleModalClose}
+        onCancel={handleModalClose}
+        centered
+      >
+        <p>Board with ID: {localBoardId} has been created successfully!</p>
+      </Modal>
     </header>
   );
 };

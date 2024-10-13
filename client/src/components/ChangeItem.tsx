@@ -24,7 +24,6 @@ interface ChangeItemProps {
   taskId?: string;
   initialTitle?: string;
   initialDescription?: string;
-  boardId?: string;
   handleCancelEdit?: () => void;
 }
 
@@ -38,7 +37,15 @@ export const ChangeItem: React.FC<ChangeItemProps> = ({
   const [description, setDescription] = useState(initialDescription);
   const [isShown, setIsShown] = useState(false);
   const [isEdit, setIsEdit] = useState(!!taskId);
-  const boardId = useSelector((state: RootState) => state.boardId.boardId);
+
+  const createdBoardId = useSelector(
+    (state: RootState) => state.createdBoard.createdBoardId
+  );
+  const defaultBoardId = useSelector(
+    (state: RootState) => state.boardId.boardId
+  );
+
+  const boardId = createdBoardId || defaultBoardId;
 
   const [addTask] = useAddIssueMutation();
   const [editTask] = useEditIssueMutation();
