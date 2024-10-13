@@ -95,7 +95,7 @@ export const Header: React.FC<HeaderProps> = ({ setIsCreated, setHasData }) => {
           size="middle"
           onClick={getIssues}
         >
-          Load
+          Load board
         </Button>
         <Button
           style={{ width: '200px' }}
