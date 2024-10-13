@@ -65,7 +65,7 @@ export const Header: React.FC<HeaderProps> = ({ setIsCreated, setHasData }) => {
 
   const handleCreateBoard = async () => {
     try {
-      const response = await createBoard().unwrap();
+      const response = await createBoard({}).unwrap();
       dispatch(setCreatedBoardId(response._id));
 
       setIsCreated(true);

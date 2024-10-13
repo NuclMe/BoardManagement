@@ -24,6 +24,7 @@ interface ChangeItemProps {
   taskId?: string;
   initialTitle?: string;
   initialDescription?: string;
+  boardId?: string;
   handleCancelEdit?: () => void;
 }
 
