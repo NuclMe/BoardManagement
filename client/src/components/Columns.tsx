@@ -6,6 +6,7 @@ import { DragDropContext, DropResult } from 'react-beautiful-dnd';
 import { CardItemTypes } from '../types';
 import { RootState } from '../redux/store';
 import { useUpdateTaskStatusMutation } from '../redux/boardApi';
+import { DeleteBoard } from './DeleteBoard';
 
 interface ColumnsProps {
   isCreated: boolean; // Пропс для проверки, создана ли доска
@@ -17,26 +18,28 @@ export const Columns: React.FC<ColumnsProps> = ({ isCreated }) => {
     (state: RootState) => state.inProgressData.data
   );
   const doneData = useSelector((state: RootState) => state.doneData.data);
-  const [updateTaskStatus] = useUpdateTaskStatusMutation();
   const boardId = useSelector((state: RootState) => state.boardId.boardId);
+  const createdBoardId = useSelector(
+    (state: RootState) => state.createdBoard.createdBoardId
+  );
+  const [updateTaskStatus] = useUpdateTaskStatusMutation();
 
   const [todoList, setTodoList] = useState<CardItemTypes[]>([]);
   const [inProgressList, setInProgressList] = useState<CardItemTypes[]>([]);
   const [doneList, setDoneList] = useState<CardItemTypes[]>([]);
+  const [isBoardDeleted, setIsBoardDeleted] = useState(false); // Состояние для удаления доски
 
   useEffect(() => {
-    // Если isCreated = false, загружаем предыдущие данные
-    if (!isCreated) {
+    if (!isCreated && !isBoardDeleted) {
       setTodoList(todoData || []);
       setInProgressList(inProgressData || []);
       setDoneList(doneData || []);
     } else {
-      // Если isCreated = true, задаем пустые массивы
       setTodoList([]);
       setInProgressList([]);
       setDoneList([]);
     }
-  }, [todoData, inProgressData, doneData, isCreated]);
+  }, [todoData, inProgressData, doneData, isCreated, isBoardDeleted]);
 
   const onDragEnd = async ({ source, destination }: DropResult) => {
     if (!destination) return;
@@ -68,17 +71,31 @@ export const Columns: React.FC<ColumnsProps> = ({ isCreated }) => {
     return [];
   };
 
+  const handleBoardDeleted = () => {
+    setIsBoardDeleted(true); // Устанавливаем состояние после удаления доски
+  };
+
   return (
-    <DragDropContext onDragEnd={onDragEnd}>
-      <Row style={{ marginTop: '20px' }} gutter={[20, 20]}>
-        <Column name="To Do" cardData={todoList} droppableId="col-1" />
-        <Column
-          name="In Progress"
-          cardData={inProgressList}
-          droppableId="col-2"
-        />
-        <Column name="Done" cardData={doneList} droppableId="col-3" />
-      </Row>
-    </DragDropContext>
+    <>
+      {!isBoardDeleted && (
+        <>
+          <DragDropContext onDragEnd={onDragEnd}>
+            <Row style={{ marginTop: '20px' }} gutter={[20, 20]}>
+              <Column name="To Do" cardData={todoList} droppableId="col-1" />
+              <Column
+                name="In Progress"
+                cardData={inProgressList}
+                droppableId="col-2"
+              />
+              <Column name="Done" cardData={doneList} droppableId="col-3" />
+            </Row>
+          </DragDropContext>
+          <DeleteBoard
+            boardId={boardId || createdBoardId}
+            onBoardDeleted={handleBoardDeleted}
+          />
+        </>
+      )}
+    </>
   );
 };
