@@ -9,7 +9,7 @@ import { useUpdateTaskStatusMutation } from '../redux/boardApi';
 import { DeleteBoard } from './DeleteBoard';
 
 interface ColumnsProps {
-  isCreated: boolean; // Пропс для проверки, создана ли доска
+  isCreated: boolean;
 }
 
 export const Columns: React.FC<ColumnsProps> = ({ isCreated }) => {
@@ -27,7 +27,7 @@ export const Columns: React.FC<ColumnsProps> = ({ isCreated }) => {
   const [todoList, setTodoList] = useState<CardItemTypes[]>([]);
   const [inProgressList, setInProgressList] = useState<CardItemTypes[]>([]);
   const [doneList, setDoneList] = useState<CardItemTypes[]>([]);
-  const [isBoardDeleted, setIsBoardDeleted] = useState(false); // Состояние для удаления доски
+  const [isBoardDeleted, setIsBoardDeleted] = useState(false);
 
   useEffect(() => {
     if (!isCreated && !isBoardDeleted) {

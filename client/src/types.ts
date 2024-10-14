@@ -15,10 +15,4 @@ interface ItemProps {
   cardData: CardItemTypes[];
 }
 
-interface TaskTypes {
-  id: string;
-  title: string;
-  description: string;
-}
-
-export type { ColumnPropsTypes, CardItemTypes, ItemProps, TaskTypes };
+export type { ColumnPropsTypes, CardItemTypes, ItemProps };

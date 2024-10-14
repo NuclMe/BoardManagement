@@ -16,7 +16,7 @@ import { Input, Button, Flex, Modal } from 'antd';
 import { useCreateBoardMutation } from '../redux/boardApi';
 
 interface HeaderProps {
-  setIsCreated: (value: boolean) => void; // Пропс для обновления состояния в App
+  setIsCreated: (value: boolean) => void;
   setHasData: (value: boolean) => void;
 }
 
@@ -42,7 +42,6 @@ export const Header: React.FC<HeaderProps> = ({ setIsCreated, setHasData }) => {
         await triggerGetGetInProgressIssues(localBoardId);
       const { data: doneIssues } = await triggerGetDoneIssues(localBoardId);
 
-      // Проверяем, есть ли данные для каждой категории и диспатчим пустые массивы, если данных нет
       dispatch(setTodoData(todoIssues ?? []));
       dispatch(setInProgressIssues(inProgressIssues ?? []));
       dispatch(setDoneIssues(doneIssues ?? []));

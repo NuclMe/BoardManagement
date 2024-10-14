@@ -4,7 +4,7 @@ import { useDeleteBoardMutation } from '../redux/boardApi';
 
 interface DeleteBoardProps {
   boardId: string | null;
-  onBoardDeleted: () => void; // Функция для обработки удаления доски
+  onBoardDeleted: () => void;
 }
 
 export const DeleteBoard: React.FC<DeleteBoardProps> = ({
@@ -19,7 +19,7 @@ export const DeleteBoard: React.FC<DeleteBoardProps> = ({
     try {
       await deleteBoard(boardId).unwrap();
       setIsModalVisible(true);
-      onBoardDeleted(); // Вызываем функцию, когда доска удалена
+      onBoardDeleted();
     } catch (error) {
       console.error('Error deleting board:', error);
     }
