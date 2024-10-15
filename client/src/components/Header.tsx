@@ -107,7 +107,7 @@ export const Header: React.FC<HeaderProps> = ({ setIsCreated, setHasData }) => {
       </Flex>
       <Modal
         title="Board Created"
-        visible={isModalVisible}
+        open={isModalVisible}
         onOk={handleModalClose}
         onCancel={handleModalClose}
         centered

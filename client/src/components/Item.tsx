@@ -3,9 +3,11 @@ import { Button } from 'antd';
 import styled from 'styled-components';
 import { Draggable } from 'react-beautiful-dnd';
 import { CardItemTypes, ItemProps } from '../types';
+import { useDispatch } from 'react-redux';
 import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import { useDeleteIssueMutation } from '../redux/boardApi';
 import { ChangeItem } from './ChangeItem';
+import { removeItem } from '../redux/todoDataSlice';
 
 const StyledCard = styled.div`
   display: flex;
@@ -38,10 +40,12 @@ const ItemDescription = styled.div`
 export const Item: React.FC<ItemProps> = ({ cardData }) => {
   const [deleteIssue] = useDeleteIssueMutation();
   const [isEditing, setIsEditing] = useState<number | null>(null);
+  const dispatch = useDispatch();
 
   const handleDeleteIssue = async (boardId: number, taskId: number) => {
     try {
       const response = await deleteIssue({ boardId, taskId }).unwrap();
+      dispatch(removeItem(taskId));
       console.log('Task deleted:', response);
     } catch (error) {
       console.error('Failed to delete task:', error);
@@ -63,11 +67,7 @@ export const Item: React.FC<ItemProps> = ({ cardData }) => {
   return (
     <>
       {cardData.map((issue: CardItemTypes, index: number) => (
-        <Draggable
-          key={issue._id}
-          draggableId={issue._id.toString()}
-          index={index}
-        >
+        <Draggable key={issue._id} draggableId={issue._id} index={index}>
           {(provided) => (
             <StyledCard
               ref={provided.innerRef}

@@ -38,7 +38,7 @@ export const DeleteBoard: React.FC<DeleteBoardProps> = ({
       </Flex>
       <Modal
         title="Board Deleted"
-        visible={isModalVisible}
+        open={isModalVisible}
         onOk={handleModalClose}
         onCancel={handleModalClose}
         centered

@@ -24,8 +24,8 @@ export const boardApi = createApi({
       query: (boardId) => ({
         url: `tasks/${boardId}/tasks?status=Done`,
       }),
+      providesTags: ['Done'],
     }),
-    providesTags: ['Done'],
     deleteIssue: builder.mutation({
       query: ({ boardId, taskId }) => ({
         url: `tasks/${boardId}/tasks/${taskId}`,

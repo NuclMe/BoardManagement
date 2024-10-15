@@ -3,8 +3,9 @@ import { Flex, Button, Input } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import styled from 'styled-components';
 import { useAddIssueMutation, useEditIssueMutation } from '../redux/boardApi';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '../redux/store';
+import { addTodo, editTodo } from '../redux/todoDataSlice';
 
 const { TextArea } = Input;
 
@@ -39,6 +40,7 @@ export const ChangeItem: React.FC<ChangeItemProps> = ({
   const [isShown, setIsShown] = useState(false);
   const [isEdit, setIsEdit] = useState(!!taskId);
 
+  const dispatch = useDispatch();
   const createdBoardId = useSelector(
     (state: RootState) => state.createdBoard.createdBoardId
   );
@@ -63,6 +65,13 @@ export const ChangeItem: React.FC<ChangeItemProps> = ({
             description,
             boardId,
           }).unwrap();
+          dispatch(
+            editTodo({
+              _id: taskId,
+              title,
+              description,
+            })
+          );
           console.log('Task edited:', result);
 
           if (handleCancelEdit) {
@@ -75,6 +84,17 @@ export const ChangeItem: React.FC<ChangeItemProps> = ({
             boardId,
           }).unwrap();
           console.log('New task added:', result);
+
+          dispatch(
+            addTodo({
+              _id: result.id,
+              title: result.title,
+              description: result.description,
+              status: 'ToDo',
+              boardId: boardId,
+            })
+          );
+
           setTitle('');
           setDescription('');
           setIsShown(false);

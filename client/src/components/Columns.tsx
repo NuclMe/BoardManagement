@@ -13,7 +13,7 @@ interface ColumnsProps {
 }
 
 export const Columns: React.FC<ColumnsProps> = ({ isCreated }) => {
-  const todoData = useSelector((state: RootState) => state.todoData.data);
+  const todoData = useSelector((state: RootState) => state.todoData);
   const inProgressData = useSelector(
     (state: RootState) => state.inProgressData.data
   );
