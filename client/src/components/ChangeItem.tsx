@@ -66,13 +66,7 @@ export const ChangeItem: React.FC<ChangeItemProps> = ({
             description,
             boardId,
           }).unwrap();
-          dispatch(
-            updateTask({
-              _id: taskId,
-              title,
-              description,
-            })
-          );
+          dispatch(updateTask({ _id: taskId, title, description }));
           console.log('Task edited:', result);
 
           if (handleCancelEdit) {
@@ -85,10 +79,9 @@ export const ChangeItem: React.FC<ChangeItemProps> = ({
             boardId,
           }).unwrap();
           console.log('New task added:', result);
-
           dispatch(
             addTodo({
-              _id: result.id,
+              _id: result._id,
               title: result.title,
               description: result.description,
               status: 'Todo',

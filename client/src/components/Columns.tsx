@@ -46,17 +46,19 @@ export const Columns: React.FC<ColumnsProps> = ({ isCreated }) => {
     if (!destination) return;
 
     const taskMoved = getListByDroppableId(source.droppableId)[source.index];
+
+    if (!taskMoved || !taskMoved._id) {
+      console.error('Task ID is undefined!');
+      return;
+    }
+
     let newStatus: TaskStatus | undefined;
 
     if (destination.droppableId === 'col-1') newStatus = 'Todo';
     if (destination.droppableId === 'col-2') newStatus = 'inProgress';
     if (destination.droppableId === 'col-3') newStatus = 'Done';
 
-    if (
-      source.droppableId !== destination.droppableId &&
-      taskMoved &&
-      newStatus
-    ) {
+    if (source.droppableId !== destination.droppableId && newStatus) {
       try {
         await updateTaskStatus({
           boardId: boardId,

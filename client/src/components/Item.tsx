@@ -70,48 +70,54 @@ export const Item: React.FC<ItemProps> = ({ cardData }) => {
 
   return (
     <>
-      {cardData.map((issue: CardItemTypes, index: number) => (
-        <Draggable key={issue._id} draggableId={issue._id} index={index}>
-          {(provided) => (
-            <StyledCard
-              ref={provided.innerRef}
-              {...provided.draggableProps}
-              {...provided.dragHandleProps}
-            >
-              {isEditing === index ? (
-                <ChangeItem
-                  handleCancelEdit={handleCancelEdit}
-                  taskId={issue._id}
-                  initialTitle={issue.title}
-                  initialDescription={issue.description}
-                  boardId={issue.boardId.toString()}
-                />
-              ) : (
-                <>
-                  <StyledItemTitle>{issue.title}</StyledItemTitle>
-                  <ItemDescription>{issue.description}</ItemDescription>
-                  <ButtonContainer>
-                    <Button
-                      icon={<EditOutlined />}
-                      onClick={() => handleEditClick(index)}
-                    />
-                    <Button
-                      icon={<DeleteOutlined />}
-                      onClick={() =>
-                        handleDeleteIssue(
-                          issue.boardId,
-                          issue._id,
-                          issue.status as TaskStatus
-                        )
-                      }
-                    />
-                  </ButtonContainer>
-                </>
-              )}
-            </StyledCard>
-          )}
-        </Draggable>
-      ))}
+      {cardData &&
+        cardData.length > 0 &&
+        cardData.map((issue: CardItemTypes, index: number) => (
+          <Draggable
+            key={issue._id || index}
+            draggableId={issue._id || `draggable-${index}`}
+            index={index}
+          >
+            {(provided) => (
+              <StyledCard
+                ref={provided.innerRef}
+                {...provided.draggableProps}
+                {...provided.dragHandleProps}
+              >
+                {isEditing === index ? (
+                  <ChangeItem
+                    handleCancelEdit={handleCancelEdit}
+                    taskId={issue._id}
+                    initialTitle={issue.title}
+                    initialDescription={issue.description}
+                    boardId={issue.boardId.toString()}
+                  />
+                ) : (
+                  <>
+                    <StyledItemTitle>{issue.title}</StyledItemTitle>
+                    <ItemDescription>{issue.description}</ItemDescription>
+                    <ButtonContainer>
+                      <Button
+                        icon={<EditOutlined />}
+                        onClick={() => handleEditClick(index)}
+                      />
+                      <Button
+                        icon={<DeleteOutlined />}
+                        onClick={() =>
+                          handleDeleteIssue(
+                            issue.boardId,
+                            issue._id,
+                            issue.status as TaskStatus
+                          )
+                        }
+                      />
+                    </ButtonContainer>
+                  </>
+                )}
+              </StyledCard>
+            )}
+          </Draggable>
+        ))}
     </>
   );
 };

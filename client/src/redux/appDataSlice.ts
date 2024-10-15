@@ -22,12 +22,10 @@ const appDataSlice = createSlice({
     addTodo: (state, action: PayloadAction<Task>) => {
       const task = action.payload;
       const status = task.status as TaskStatus;
-
       if (!state[status]) {
         console.error(`Invalid status: ${status}`);
         return;
       }
-
       state[status].push(task);
     },
 
