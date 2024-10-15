@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Row } from 'antd';
 import { Column } from './Column';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { DragDropContext, DropResult } from 'react-beautiful-dnd';
 import { RootState } from '../redux/store';
 import { useUpdateTaskStatusMutation } from '../redux/boardApi';
 import { DeleteBoard } from './DeleteBoard';
+import { moveTask } from '../redux/dataSlice';
 
 interface ColumnsProps {
   isCreated: boolean;
@@ -22,6 +23,8 @@ export const Columns: React.FC<ColumnsProps> = ({ isCreated }) => {
     (state: RootState) => state.createdBoard.createdBoardId
   );
   const [updateTaskStatus] = useUpdateTaskStatusMutation();
+
+  const dispatch = useDispatch();
 
   const [todoList, setTodoList] = useState([]);
   const [inProgressList, setInProgressList] = useState([]);
@@ -44,19 +47,30 @@ export const Columns: React.FC<ColumnsProps> = ({ isCreated }) => {
     if (!destination) return;
 
     const taskMoved = getListByDroppableId(source.droppableId)[source.index];
-    let newStatus;
+    let newStatus: string | undefined;
 
     if (destination.droppableId === 'col-1') newStatus = 'Todo';
-    if (destination.droppableId === 'col-2') newStatus = 'InProgress';
+    if (destination.droppableId === 'col-2') newStatus = 'inProgress';
     if (destination.droppableId === 'col-3') newStatus = 'Done';
 
-    if (source.droppableId !== destination.droppableId && taskMoved) {
+    if (
+      source.droppableId !== destination.droppableId &&
+      taskMoved &&
+      newStatus
+    ) {
       try {
         await updateTaskStatus({
           boardId: boardId,
           taskId: taskMoved._id,
           status: newStatus,
         });
+
+        dispatch(
+          moveTask({
+            _id: taskMoved._id,
+            status: newStatus,
+          })
+        );
       } catch (error) {
         console.error('Error updating task status:', error);
       }

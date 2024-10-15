@@ -54,13 +54,10 @@ const todoDataSlice = createSlice({
         console.error(`Invalid status: ${status}`);
       }
     },
+
     updateTask: (
       state,
-      action: PayloadAction<{
-        _id: string;
-        title: string;
-        description: string;
-      }>
+      action: PayloadAction<{ _id: string; title: string; description: string }>
     ) => {
       const { _id, title, description } = action.payload;
       for (const status of ['Todo', 'inProgress', 'Done']) {
@@ -72,9 +69,27 @@ const todoDataSlice = createSlice({
         }
       }
     },
+
+    moveTask: (
+      state,
+      action: PayloadAction<{ _id: string; status: string }>
+    ) => {
+      const { _id, status } = action.payload;
+      for (const currentStatus of ['Todo', 'inProgress', 'Done']) {
+        const taskIndex = state[currentStatus].findIndex(
+          (task) => task._id === _id
+        );
+        if (taskIndex !== -1) {
+          const [task] = state[currentStatus].splice(taskIndex, 1);
+          task.status = status;
+          state[status].push(task);
+          break;
+        }
+      }
+    },
   },
 });
 
-export const { addTodo, setTodoData, removeTask, updateTask } =
+export const { addTodo, setTodoData, removeTask, updateTask, moveTask } =
   todoDataSlice.actions;
 export default todoDataSlice.reducer;

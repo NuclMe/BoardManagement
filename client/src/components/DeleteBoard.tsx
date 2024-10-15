@@ -31,7 +31,7 @@ export const DeleteBoard: React.FC<DeleteBoardProps> = ({
 
   return (
     <>
-      <Flex justify="flex-end" style={{ width: '100%' }}>
+      <Flex justify="flex-end" style={{ width: '100%', marginTop: '20px' }}>
         <Button color="danger" variant="solid" onClick={handleDeleteBoard}>
           Delete board
         </Button>
