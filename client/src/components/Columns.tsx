@@ -1,34 +1,35 @@
 import React, { useState, useEffect } from 'react';
 import { Row } from 'antd';
 import { Column } from './Column';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { DragDropContext, DropResult } from 'react-beautiful-dnd';
-import { CardItemTypes } from '../types';
 import { RootState } from '../redux/store';
 import { useUpdateTaskStatusMutation } from '../redux/boardApi';
 import { DeleteBoard } from './DeleteBoard';
-
+import { moveTask } from '../redux/appDataSlice';
+import { Task, TaskStatus } from '../types';
 interface ColumnsProps {
-  isCreated: boolean; // Пропс для проверки, создана ли доска
+  isCreated: boolean;
 }
 
 export const Columns: React.FC<ColumnsProps> = ({ isCreated }) => {
-  const todoData = useSelector((state: RootState) => state.todoData.data);
+  const todoData = useSelector((state: RootState) => state.appData.Todo);
   const inProgressData = useSelector(
-    (state: RootState) => state.inProgressData.data
+    (state: RootState) => state.appData.inProgress
   );
-  const doneData = useSelector((state: RootState) => state.doneData.data);
+  const doneData = useSelector((state: RootState) => state.appData.Done);
   const boardId = useSelector((state: RootState) => state.boardId.boardId);
   const createdBoardId = useSelector(
     (state: RootState) => state.createdBoard.createdBoardId
   );
   const [updateTaskStatus] = useUpdateTaskStatusMutation();
 
-  const [todoList, setTodoList] = useState<CardItemTypes[]>([]);
-  const [inProgressList, setInProgressList] = useState<CardItemTypes[]>([]);
-  const [doneList, setDoneList] = useState<CardItemTypes[]>([]);
-  const [isBoardDeleted, setIsBoardDeleted] = useState(false); // Состояние для удаления доски
+  const dispatch = useDispatch();
 
+  const [todoList, setTodoList] = useState<Task[]>([]);
+  const [inProgressList, setInProgressList] = useState<Task[]>([]);
+  const [doneList, setDoneList] = useState<Task[]>([]);
+  const [isBoardDeleted, setIsBoardDeleted] = useState(false);
   useEffect(() => {
     if (!isCreated && !isBoardDeleted) {
       setTodoList(todoData || []);
@@ -45,26 +46,39 @@ export const Columns: React.FC<ColumnsProps> = ({ isCreated }) => {
     if (!destination) return;
 
     const taskMoved = getListByDroppableId(source.droppableId)[source.index];
-    let newStatus;
+
+    if (!taskMoved || !taskMoved._id) {
+      console.error('Task ID is undefined!');
+      return;
+    }
+
+    let newStatus: TaskStatus | undefined;
 
     if (destination.droppableId === 'col-1') newStatus = 'Todo';
-    if (destination.droppableId === 'col-2') newStatus = 'InProgress';
+    if (destination.droppableId === 'col-2') newStatus = 'inProgress';
     if (destination.droppableId === 'col-3') newStatus = 'Done';
 
-    if (source.droppableId !== destination.droppableId && taskMoved) {
+    if (source.droppableId !== destination.droppableId && newStatus) {
       try {
         await updateTaskStatus({
           boardId: boardId,
           taskId: taskMoved._id,
           status: newStatus,
         });
+
+        dispatch(
+          moveTask({
+            _id: taskMoved._id,
+            status: newStatus,
+          })
+        );
       } catch (error) {
         console.error('Error updating task status:', error);
       }
     }
   };
 
-  const getListByDroppableId = (droppableId: string): CardItemTypes[] => {
+  const getListByDroppableId = (droppableId: string) => {
     if (droppableId === 'col-1') return todoList;
     if (droppableId === 'col-2') return inProgressList;
     if (droppableId === 'col-3') return doneList;
