@@ -2,12 +2,12 @@ import React, { useState } from 'react';
 import { Button } from 'antd';
 import styled from 'styled-components';
 import { Draggable } from 'react-beautiful-dnd';
-import { CardItemTypes, ItemProps } from '../types';
+import { CardItemTypes, ItemProps, TaskStatus } from '../types';
 import { useDispatch } from 'react-redux';
 import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import { useDeleteIssueMutation } from '../redux/boardApi';
 import { ChangeItem } from './ChangeItem';
-import { removeTask } from '../redux/dataSlice';
+import { removeTask } from '../redux/appDataSlice';
 
 const StyledCard = styled.div`
   display: flex;
@@ -43,13 +43,13 @@ export const Item: React.FC<ItemProps> = ({ cardData }) => {
   const dispatch = useDispatch();
 
   const handleDeleteIssue = async (
-    boardId: number,
-    taskId: number,
-    status: string
+    boardId: string,
+    taskId: string,
+    status: TaskStatus
   ) => {
     try {
       const response = await deleteIssue({ boardId, taskId }).unwrap();
-      dispatch(removeTask({ _id: taskId, status }));
+      dispatch(removeTask({ _id: taskId.toString(), status: status }));
       console.log('Task deleted:', response);
     } catch (error) {
       console.error('Failed to delete task:', error);
@@ -101,7 +101,7 @@ export const Item: React.FC<ItemProps> = ({ cardData }) => {
                         handleDeleteIssue(
                           issue.boardId,
                           issue._id,
-                          issue.status
+                          issue.status as TaskStatus
                         )
                       }
                     />

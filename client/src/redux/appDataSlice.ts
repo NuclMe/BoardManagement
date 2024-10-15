@@ -1,38 +1,27 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { Task, TaskStatus, AppState } from '../types';
 
-interface Task {
-  _id: string;
-  title: string;
-  description: string;
-  status: string;
-  boardId: string;
-}
-
-interface TodoState {
-  Todo: Task[];
-  inProgress: Task[];
-  Done: Task[];
-}
-
-const initialState: TodoState = {
+const initialState: AppState = {
   Todo: [],
   inProgress: [],
   Done: [],
 };
 
-const todoDataSlice = createSlice({
-  name: 'todoData',
+const appDataSlice = createSlice({
+  name: 'appData',
   initialState,
   reducers: {
-    setTodoData(
+    setAppData(
       state,
       action: PayloadAction<{ Todo: Task[]; inProgress: Task[]; Done: Task[] }>
     ) {
-      return action.payload;
+      state.Todo = action.payload.Todo;
+      state.inProgress = action.payload.inProgress;
+      state.Done = action.payload.Done;
     },
     addTodo: (state, action: PayloadAction<Task>) => {
       const task = action.payload;
-      const status = task.status;
+      const status = task.status as TaskStatus;
 
       if (!state[status]) {
         console.error(`Invalid status: ${status}`);
@@ -44,12 +33,12 @@ const todoDataSlice = createSlice({
 
     removeTask: (
       state,
-      action: PayloadAction<{ _id: string; status: string }>
+      action: PayloadAction<{ _id: string; status: TaskStatus }>
     ) => {
       const { _id, status } = action.payload;
 
       if (state[status]) {
-        state[status] = state[status].filter((task) => task._id !== _id);
+        state[status] = state[status].filter((task: Task) => task._id !== _id);
       } else {
         console.error(`Invalid status: ${status}`);
       }
@@ -60,8 +49,8 @@ const todoDataSlice = createSlice({
       action: PayloadAction<{ _id: string; title: string; description: string }>
     ) => {
       const { _id, title, description } = action.payload;
-      for (const status of ['Todo', 'inProgress', 'Done']) {
-        const task = state[status].find((task) => task._id === _id);
+      for (const status of ['Todo', 'inProgress', 'Done'] as TaskStatus[]) {
+        const task = state[status].find((task: Task) => task._id === _id);
         if (task) {
           task.title = title;
           task.description = description;
@@ -72,12 +61,22 @@ const todoDataSlice = createSlice({
 
     moveTask: (
       state,
-      action: PayloadAction<{ _id: string; status: string }>
+      action: PayloadAction<{ _id: string; status: TaskStatus }>
     ) => {
       const { _id, status } = action.payload;
-      for (const currentStatus of ['Todo', 'inProgress', 'Done']) {
+
+      if (!state[status]) {
+        console.error(`Invalid status: ${status}`);
+        return;
+      }
+
+      for (const currentStatus of [
+        'Todo',
+        'inProgress',
+        'Done',
+      ] as TaskStatus[]) {
         const taskIndex = state[currentStatus].findIndex(
-          (task) => task._id === _id
+          (task: Task) => task._id === _id
         );
         if (taskIndex !== -1) {
           const [task] = state[currentStatus].splice(taskIndex, 1);
@@ -90,6 +89,6 @@ const todoDataSlice = createSlice({
   },
 });
 
-export const { addTodo, setTodoData, removeTask, updateTask, moveTask } =
-  todoDataSlice.actions;
-export default todoDataSlice.reducer;
+export const { addTodo, setAppData, removeTask, updateTask, moveTask } =
+  appDataSlice.actions;
+export default appDataSlice.reducer;

@@ -1,4 +1,4 @@
 export * from './store';
-export * from './dataSlice';
+export * from './appDataSlice';
 export * from './boardSlice';
 export * from './createdBoardSlice';

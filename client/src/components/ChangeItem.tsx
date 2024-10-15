@@ -5,7 +5,7 @@ import styled from 'styled-components';
 import { useAddIssueMutation, useEditIssueMutation } from '../redux/boardApi';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '../redux/store';
-import { addTodo, updateTask } from '../redux/dataSlice';
+import { addTodo, updateTask } from '../redux/appDataSlice';
 
 const { TextArea } = Input;
 
@@ -27,7 +27,7 @@ interface ChangeItemProps {
   initialDescription?: string;
   boardId?: string;
   handleCancelEdit?: () => void;
-  status: string;
+  status?: string;
 }
 
 export const ChangeItem: React.FC<ChangeItemProps> = ({

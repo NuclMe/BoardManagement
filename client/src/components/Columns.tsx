@@ -6,18 +6,18 @@ import { DragDropContext, DropResult } from 'react-beautiful-dnd';
 import { RootState } from '../redux/store';
 import { useUpdateTaskStatusMutation } from '../redux/boardApi';
 import { DeleteBoard } from './DeleteBoard';
-import { moveTask } from '../redux/dataSlice';
-
+import { moveTask } from '../redux/appDataSlice';
+import { Task, TaskStatus } from '../types';
 interface ColumnsProps {
   isCreated: boolean;
 }
 
 export const Columns: React.FC<ColumnsProps> = ({ isCreated }) => {
-  const todoData = useSelector((state: RootState) => state.todoData.Todo);
+  const todoData = useSelector((state: RootState) => state.appData.Todo);
   const inProgressData = useSelector(
-    (state: RootState) => state.todoData.inProgress
+    (state: RootState) => state.appData.inProgress
   );
-  const doneData = useSelector((state: RootState) => state.todoData.Done);
+  const doneData = useSelector((state: RootState) => state.appData.Done);
   const boardId = useSelector((state: RootState) => state.boardId.boardId);
   const createdBoardId = useSelector(
     (state: RootState) => state.createdBoard.createdBoardId
@@ -26,11 +26,10 @@ export const Columns: React.FC<ColumnsProps> = ({ isCreated }) => {
 
   const dispatch = useDispatch();
 
-  const [todoList, setTodoList] = useState([]);
-  const [inProgressList, setInProgressList] = useState([]);
-  const [doneList, setDoneList] = useState([]);
+  const [todoList, setTodoList] = useState<Task[]>([]);
+  const [inProgressList, setInProgressList] = useState<Task[]>([]);
+  const [doneList, setDoneList] = useState<Task[]>([]);
   const [isBoardDeleted, setIsBoardDeleted] = useState(false);
-
   useEffect(() => {
     if (!isCreated && !isBoardDeleted) {
       setTodoList(todoData || []);
@@ -47,7 +46,7 @@ export const Columns: React.FC<ColumnsProps> = ({ isCreated }) => {
     if (!destination) return;
 
     const taskMoved = getListByDroppableId(source.droppableId)[source.index];
-    let newStatus: string | undefined;
+    let newStatus: TaskStatus | undefined;
 
     if (destination.droppableId === 'col-1') newStatus = 'Todo';
     if (destination.droppableId === 'col-2') newStatus = 'inProgress';

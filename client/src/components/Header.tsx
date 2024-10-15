@@ -5,7 +5,7 @@ import {
   useLazyGetDoneIssuesQuery,
 } from '../redux/boardApi';
 import { useDispatch } from 'react-redux';
-import { setTodoData, setBoardId, setCreatedBoardId } from '../redux';
+import { setAppData, setBoardId, setCreatedBoardId } from '../redux';
 import { Input, Button, Flex, Modal } from 'antd';
 import { useCreateBoardMutation } from '../redux/boardApi';
 
@@ -16,7 +16,6 @@ interface HeaderProps {
 
 export const Header: React.FC<HeaderProps> = ({ setIsCreated, setHasData }) => {
   const [localBoardId, setLocalBoardId] = useState<string>();
-
   const [isModalVisible, setIsModalVisible] = useState(false);
   const dispatch = useDispatch();
   const [createBoard] = useCreateBoardMutation();
@@ -37,7 +36,7 @@ export const Header: React.FC<HeaderProps> = ({ setIsCreated, setHasData }) => {
       const { data: doneIssues } = await triggerGetDoneIssues(localBoardId);
 
       dispatch(
-        setTodoData({
+        setAppData({
           Todo: todoIssues ?? [],
           inProgress: inProgressIssues ?? [],
           Done: doneIssues ?? [],
@@ -53,10 +52,10 @@ export const Header: React.FC<HeaderProps> = ({ setIsCreated, setHasData }) => {
       console.error('Error fetching issues:', error);
 
       dispatch(
-        setTodoData({
+        setAppData({
           Todo: [],
           inProgress: [],
-          done: [],
+          Done: [],
         })
       );
     }
