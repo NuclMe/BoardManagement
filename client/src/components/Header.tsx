@@ -5,13 +5,7 @@ import {
   useLazyGetDoneIssuesQuery,
 } from '../redux/boardApi';
 import { useDispatch } from 'react-redux';
-import {
-  setTodoData,
-  setInProgressIssues,
-  setDoneIssues,
-  setBoardId,
-  setCreatedBoardId,
-} from '../redux';
+import { setTodoData, setBoardId, setCreatedBoardId } from '../redux';
 import { Input, Button, Flex, Modal } from 'antd';
 import { useCreateBoardMutation } from '../redux/boardApi';
 
@@ -42,9 +36,13 @@ export const Header: React.FC<HeaderProps> = ({ setIsCreated, setHasData }) => {
         await triggerGetGetInProgressIssues(localBoardId);
       const { data: doneIssues } = await triggerGetDoneIssues(localBoardId);
 
-      dispatch(setTodoData(todoIssues ?? []));
-      dispatch(setInProgressIssues(inProgressIssues ?? []));
-      dispatch(setDoneIssues(doneIssues ?? []));
+      dispatch(
+        setTodoData({
+          Todo: todoIssues ?? [],
+          inProgress: inProgressIssues ?? [],
+          Done: doneIssues ?? [],
+        })
+      );
 
       if (localBoardId) {
         dispatch(setBoardId(localBoardId));
@@ -54,9 +52,13 @@ export const Header: React.FC<HeaderProps> = ({ setIsCreated, setHasData }) => {
     } catch (error) {
       console.error('Error fetching issues:', error);
 
-      dispatch(setTodoData([]));
-      dispatch(setInProgressIssues([]));
-      dispatch(setDoneIssues([]));
+      dispatch(
+        setTodoData({
+          Todo: [],
+          inProgress: [],
+          done: [],
+        })
+      );
     }
   };
 

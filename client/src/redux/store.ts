@@ -1,17 +1,13 @@
 import { configureStore } from '@reduxjs/toolkit';
 import { boardApi } from './boardApi';
-import todoDataSlice from './todoDataSlice';
-import inProgressDataSlice from './inProgressDataSlice';
-import doneDataSlice from './doneDataSlice';
+import dataSlice from './dataSlice';
 import boardSlice from './boardSlice';
 import createdBoardSlice from './createdBoardSlice';
 
 export const store = configureStore({
   reducer: {
     [boardApi.reducerPath]: boardApi.reducer,
-    todoData: todoDataSlice,
-    inProgressData: inProgressDataSlice,
-    doneData: doneDataSlice,
+    todoData: dataSlice,
     boardId: boardSlice,
     createdBoard: createdBoardSlice,
   },

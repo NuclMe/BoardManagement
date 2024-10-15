@@ -3,7 +3,6 @@ import { Row } from 'antd';
 import { Column } from './Column';
 import { useSelector } from 'react-redux';
 import { DragDropContext, DropResult } from 'react-beautiful-dnd';
-import { CardItemTypes } from '../types';
 import { RootState } from '../redux/store';
 import { useUpdateTaskStatusMutation } from '../redux/boardApi';
 import { DeleteBoard } from './DeleteBoard';
@@ -13,20 +12,20 @@ interface ColumnsProps {
 }
 
 export const Columns: React.FC<ColumnsProps> = ({ isCreated }) => {
-  const todoData = useSelector((state: RootState) => state.todoData);
+  const todoData = useSelector((state: RootState) => state.todoData.Todo);
   const inProgressData = useSelector(
-    (state: RootState) => state.inProgressData.data
+    (state: RootState) => state.todoData.inProgress
   );
-  const doneData = useSelector((state: RootState) => state.doneData.data);
+  const doneData = useSelector((state: RootState) => state.todoData.Done);
   const boardId = useSelector((state: RootState) => state.boardId.boardId);
   const createdBoardId = useSelector(
     (state: RootState) => state.createdBoard.createdBoardId
   );
   const [updateTaskStatus] = useUpdateTaskStatusMutation();
 
-  const [todoList, setTodoList] = useState<CardItemTypes[]>([]);
-  const [inProgressList, setInProgressList] = useState<CardItemTypes[]>([]);
-  const [doneList, setDoneList] = useState<CardItemTypes[]>([]);
+  const [todoList, setTodoList] = useState([]);
+  const [inProgressList, setInProgressList] = useState([]);
+  const [doneList, setDoneList] = useState([]);
   const [isBoardDeleted, setIsBoardDeleted] = useState(false);
 
   useEffect(() => {
@@ -64,7 +63,7 @@ export const Columns: React.FC<ColumnsProps> = ({ isCreated }) => {
     }
   };
 
-  const getListByDroppableId = (droppableId: string): CardItemTypes[] => {
+  const getListByDroppableId = (droppableId: string) => {
     if (droppableId === 'col-1') return todoList;
     if (droppableId === 'col-2') return inProgressList;
     if (droppableId === 'col-3') return doneList;

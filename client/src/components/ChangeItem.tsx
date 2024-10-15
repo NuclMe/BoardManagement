@@ -5,7 +5,7 @@ import styled from 'styled-components';
 import { useAddIssueMutation, useEditIssueMutation } from '../redux/boardApi';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '../redux/store';
-import { addTodo, editTodo } from '../redux/todoDataSlice';
+import { addTodo, updateTask } from '../redux/dataSlice';
 
 const { TextArea } = Input;
 
@@ -27,6 +27,7 @@ interface ChangeItemProps {
   initialDescription?: string;
   boardId?: string;
   handleCancelEdit?: () => void;
+  status: string;
 }
 
 export const ChangeItem: React.FC<ChangeItemProps> = ({
@@ -66,7 +67,7 @@ export const ChangeItem: React.FC<ChangeItemProps> = ({
             boardId,
           }).unwrap();
           dispatch(
-            editTodo({
+            updateTask({
               _id: taskId,
               title,
               description,
@@ -90,7 +91,7 @@ export const ChangeItem: React.FC<ChangeItemProps> = ({
               _id: result.id,
               title: result.title,
               description: result.description,
-              status: 'ToDo',
+              status: 'Todo',
               boardId: boardId,
             })
           );

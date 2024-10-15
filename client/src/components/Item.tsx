@@ -7,7 +7,7 @@ import { useDispatch } from 'react-redux';
 import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import { useDeleteIssueMutation } from '../redux/boardApi';
 import { ChangeItem } from './ChangeItem';
-import { removeItem } from '../redux/todoDataSlice';
+import { removeTask } from '../redux/dataSlice';
 
 const StyledCard = styled.div`
   display: flex;
@@ -42,10 +42,14 @@ export const Item: React.FC<ItemProps> = ({ cardData }) => {
   const [isEditing, setIsEditing] = useState<number | null>(null);
   const dispatch = useDispatch();
 
-  const handleDeleteIssue = async (boardId: number, taskId: number) => {
+  const handleDeleteIssue = async (
+    boardId: number,
+    taskId: number,
+    status: string
+  ) => {
     try {
       const response = await deleteIssue({ boardId, taskId }).unwrap();
-      dispatch(removeItem(taskId));
+      dispatch(removeTask({ _id: taskId, status }));
       console.log('Task deleted:', response);
     } catch (error) {
       console.error('Failed to delete task:', error);
@@ -77,7 +81,7 @@ export const Item: React.FC<ItemProps> = ({ cardData }) => {
               {isEditing === index ? (
                 <ChangeItem
                   handleCancelEdit={handleCancelEdit}
-                  taskId={issue._id.toString()}
+                  taskId={issue._id}
                   initialTitle={issue.title}
                   initialDescription={issue.description}
                   boardId={issue.boardId.toString()}
@@ -94,7 +98,11 @@ export const Item: React.FC<ItemProps> = ({ cardData }) => {
                     <Button
                       icon={<DeleteOutlined />}
                       onClick={() =>
-                        handleDeleteIssue(issue.boardId, issue._id)
+                        handleDeleteIssue(
+                          issue.boardId,
+                          issue._id,
+                          issue.status
+                        )
                       }
                     />
                   </ButtonContainer>
