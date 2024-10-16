@@ -3,14 +3,13 @@ import './App.css';
 import { Header, Columns } from './components';
 
 export const App: React.FC = () => {
-  const [isCreated, setIsCreated] = useState(false);
   const [hasData, setHasData] = useState(false);
 
   return (
     <>
-      <Header setIsCreated={setIsCreated} setHasData={setHasData} />
+      <Header setHasData={setHasData} />
 
-      {(isCreated || hasData) && <Columns isCreated={isCreated} />}
+      {hasData && <Columns />}
     </>
   );
 };

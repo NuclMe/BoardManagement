@@ -8,20 +8,15 @@ import { useUpdateTaskStatusMutation } from '../redux/boardApi';
 import { DeleteBoard } from './DeleteBoard';
 import { moveTask } from '../redux/appDataSlice';
 import { Task, TaskStatus } from '../types';
-interface ColumnsProps {
-  isCreated: boolean;
-}
 
-export const Columns: React.FC<ColumnsProps> = ({ isCreated }) => {
+export const Columns: React.FC = () => {
   const todoData = useSelector((state: RootState) => state.appData.Todo);
   const inProgressData = useSelector(
     (state: RootState) => state.appData.inProgress
   );
   const doneData = useSelector((state: RootState) => state.appData.Done);
   const boardId = useSelector((state: RootState) => state.boardId.boardId);
-  const createdBoardId = useSelector(
-    (state: RootState) => state.createdBoard.createdBoardId
-  );
+
   const [updateTaskStatus] = useUpdateTaskStatusMutation();
 
   const dispatch = useDispatch();
@@ -30,8 +25,9 @@ export const Columns: React.FC<ColumnsProps> = ({ isCreated }) => {
   const [inProgressList, setInProgressList] = useState<Task[]>([]);
   const [doneList, setDoneList] = useState<Task[]>([]);
   const [isBoardDeleted, setIsBoardDeleted] = useState(false);
+
   useEffect(() => {
-    if (!isCreated && !isBoardDeleted) {
+    if (!isBoardDeleted) {
       setTodoList(todoData || []);
       setInProgressList(inProgressData || []);
       setDoneList(doneData || []);
@@ -40,7 +36,7 @@ export const Columns: React.FC<ColumnsProps> = ({ isCreated }) => {
       setInProgressList([]);
       setDoneList([]);
     }
-  }, [todoData, inProgressData, doneData, isCreated, isBoardDeleted]);
+  }, [todoData, inProgressData, doneData, isBoardDeleted]);
 
   const onDragEnd = async ({ source, destination }: DropResult) => {
     if (!destination) return;
@@ -104,10 +100,7 @@ export const Columns: React.FC<ColumnsProps> = ({ isCreated }) => {
               <Column name="Done" cardData={doneList} droppableId="col-3" />
             </Row>
           </DragDropContext>
-          <DeleteBoard
-            boardId={boardId || createdBoardId}
-            onBoardDeleted={handleBoardDeleted}
-          />
+          <DeleteBoard boardId={boardId} onBoardDeleted={handleBoardDeleted} />
         </>
       )}
     </>
