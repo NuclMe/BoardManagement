@@ -5,16 +5,15 @@ import {
   useLazyGetDoneIssuesQuery,
 } from '../redux/boardApi';
 import { useDispatch } from 'react-redux';
-import { setAppData, setBoardId, setCreatedBoardId } from '../redux';
+import { setAppData, setBoardId } from '../redux';
 import { Input, Button, Flex, Modal } from 'antd';
 import { useCreateBoardMutation } from '../redux/boardApi';
 
 interface HeaderProps {
-  setIsCreated: (value: boolean) => void;
   setHasData: (value: boolean) => void;
 }
 
-export const Header: React.FC<HeaderProps> = ({ setIsCreated, setHasData }) => {
+export const Header: React.FC<HeaderProps> = ({ setHasData }) => {
   const [localBoardId, setLocalBoardId] = useState<string>();
   const [isModalVisible, setIsModalVisible] = useState(false);
   const dispatch = useDispatch();
@@ -27,13 +26,34 @@ export const Header: React.FC<HeaderProps> = ({ setIsCreated, setHasData }) => {
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setLocalBoardId(e.target.value);
   };
-
-  const getIssues = async () => {
+  const handleCreateBoard = async () => {
     try {
-      const { data: todoIssues } = await triggerGetTodoIssues(localBoardId);
+      const response = await createBoard({}).unwrap();
+      if (response && response._id) {
+        const newBoardId = response._id;
+
+        dispatch(setBoardId(newBoardId));
+        setLocalBoardId(newBoardId);
+
+        await getIssues(newBoardId);
+      }
+      setIsModalVisible(true);
+    } catch (error) {
+      console.error('Error creating board:', error);
+    }
+  };
+
+  const getIssues = async (boardId: string) => {
+    if (!boardId) {
+      console.error('Board ID is undefined!');
+      return;
+    }
+
+    try {
+      const { data: todoIssues } = await triggerGetTodoIssues(boardId);
       const { data: inProgressIssues } =
-        await triggerGetGetInProgressIssues(localBoardId);
-      const { data: doneIssues } = await triggerGetDoneIssues(localBoardId);
+        await triggerGetGetInProgressIssues(boardId);
+      const { data: doneIssues } = await triggerGetDoneIssues(boardId);
 
       dispatch(
         setAppData({
@@ -43,10 +63,7 @@ export const Header: React.FC<HeaderProps> = ({ setIsCreated, setHasData }) => {
         })
       );
 
-      if (localBoardId) {
-        dispatch(setBoardId(localBoardId));
-      }
-
+      dispatch(setBoardId(boardId));
       setHasData(true);
     } catch (error) {
       console.error('Error fetching issues:', error);
@@ -58,21 +75,6 @@ export const Header: React.FC<HeaderProps> = ({ setIsCreated, setHasData }) => {
           Done: [],
         })
       );
-    }
-  };
-
-  const handleCreateBoard = async () => {
-    try {
-      const response = await createBoard({}).unwrap();
-      dispatch(setCreatedBoardId(response._id));
-
-      setIsCreated(true);
-      if (response && response._id) {
-        setLocalBoardId(response._id);
-        setIsModalVisible(true);
-      }
-    } catch (error) {
-      console.error('Error creating board:', error);
     }
   };
 
@@ -91,7 +93,13 @@ export const Header: React.FC<HeaderProps> = ({ setIsCreated, setHasData }) => {
           style={{ width: '200px' }}
           type="primary"
           size="middle"
-          onClick={getIssues}
+          onClick={() => {
+            if (localBoardId) {
+              getIssues(localBoardId);
+            } else {
+              console.error('Board ID is undefined!');
+            }
+          }}
         >
           Load board
         </Button>

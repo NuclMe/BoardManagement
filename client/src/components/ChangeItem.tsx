@@ -6,6 +6,7 @@ import { useAddIssueMutation, useEditIssueMutation } from '../redux/boardApi';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '../redux/store';
 import { addTodo, updateTask } from '../redux/appDataSlice';
+import { useLazyGetTodoIssuesQuery } from '../redux/boardApi';
 
 const { TextArea } = Input;
 
@@ -40,16 +41,11 @@ export const ChangeItem: React.FC<ChangeItemProps> = ({
   const [description, setDescription] = useState(initialDescription);
   const [isShown, setIsShown] = useState(false);
   const [isEdit, setIsEdit] = useState(!!taskId);
+  const [triggerGetTodoIssues] = useLazyGetTodoIssuesQuery();
 
   const dispatch = useDispatch();
-  const createdBoardId = useSelector(
-    (state: RootState) => state.createdBoard.createdBoardId
-  );
-  const defaultBoardId = useSelector(
-    (state: RootState) => state.boardId.boardId
-  );
 
-  const boardId = createdBoardId || defaultBoardId;
+  const boardId = useSelector((state: RootState) => state.boardId.boardId);
 
   const [addTask] = useAddIssueMutation();
   const [editTask] = useEditIssueMutation();
@@ -88,7 +84,7 @@ export const ChangeItem: React.FC<ChangeItemProps> = ({
               boardId: boardId,
             })
           );
-
+          await triggerGetTodoIssues(boardId);
           setTitle('');
           setDescription('');
           setIsShown(false);
