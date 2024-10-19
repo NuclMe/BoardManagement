@@ -5,20 +5,37 @@ interface ColumnPropsTypes {
 }
 
 interface CardItemTypes {
-  boardId: number;
-  _id: number;
+  boardId: string;
+  _id: string;
   title: string;
   description: string;
+  status: string;
 }
 
+interface Task {
+  _id: string;
+  title: string;
+  description: string;
+  status: string;
+  boardId: string;
+}
 interface ItemProps {
   cardData: CardItemTypes[];
 }
 
-interface TaskTypes {
-  id: string;
-  title: string;
-  description: string;
+type TaskStatus = 'Todo' | 'inProgress' | 'Done';
+
+interface AppState {
+  Todo: Task[];
+  inProgress: Task[];
+  Done: Task[];
 }
 
-export type { ColumnPropsTypes, CardItemTypes, ItemProps, TaskTypes };
+export type {
+  ColumnPropsTypes,
+  CardItemTypes,
+  ItemProps,
+  Task,
+  TaskStatus,
+  AppState,
+};

@@ -1,10 +1,9 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import { API_PATH } from '../api/apiConsts';
-import { TaskTypes } from '../types';
 
 export const boardApi = createApi({
   reducerPath: 'boardApi',
-  tagTypes: ['Tasks'],
+  tagTypes: ['Todo', 'InProgress', 'Done'],
   baseQuery: fetchBaseQuery({
     baseUrl: API_PATH,
   }),
@@ -13,35 +12,26 @@ export const boardApi = createApi({
       query: (boardId) => ({
         url: `tasks/${boardId}/tasks?status=Todo`,
       }),
-      providesTags: (result) =>
-        result
-          ? [
-              ...result.map((task: TaskTypes) => ({
-                type: 'Tasks',
-                id: task.id,
-              })),
-              { type: 'Tasks', id: 'LIST' },
-            ]
-          : [{ type: 'Tasks', id: 'LIST' }],
+      providesTags: ['Todo'],
     }),
     getInProgressIssues: builder.query({
       query: (boardId) => ({
         url: `tasks/${boardId}/tasks?status=InProgress`,
       }),
-      providesTags: [{ type: 'Tasks', id: 'LIST' }],
+      providesTags: ['InProgress'],
     }),
     getDoneIssues: builder.query({
       query: (boardId) => ({
         url: `tasks/${boardId}/tasks?status=Done`,
       }),
-      providesTags: [{ type: 'Tasks', id: 'LIST' }],
+      providesTags: ['Done'],
     }),
     deleteIssue: builder.mutation({
       query: ({ boardId, taskId }) => ({
         url: `tasks/${boardId}/tasks/${taskId}`,
         method: 'DELETE',
       }),
-      invalidatesTags: [{ type: 'Tasks', id: 'LIST' }],
+      invalidatesTags: ['Todo', 'InProgress', 'Done'],
     }),
     addIssue: builder.mutation({
       query: ({ title, description, boardId }) => ({
@@ -49,7 +39,7 @@ export const boardApi = createApi({
         method: 'POST',
         body: { title, description },
       }),
-      invalidatesTags: [{ type: 'Tasks', id: 'LIST' }],
+      invalidatesTags: ['Todo'],
     }),
     editIssue: builder.mutation({
       query: ({ title, description, boardId, taskId }) => ({
@@ -57,7 +47,7 @@ export const boardApi = createApi({
         method: 'PUT',
         body: { title, description },
       }),
-      invalidatesTags: [{ type: 'Tasks', id: 'LIST' }],
+      invalidatesTags: ['Todo', 'InProgress', 'Done'],
     }),
     updateTaskStatus: builder.mutation({
       query: ({ boardId, taskId, status }) => ({
@@ -65,14 +55,13 @@ export const boardApi = createApi({
         method: 'PUT',
         body: { status },
       }),
-      invalidatesTags: [{ type: 'Tasks', id: 'LIST' }],
+      invalidatesTags: ['Todo', 'InProgress', 'Done'],
     }),
     createBoard: builder.mutation({
       query: () => ({
         url: `/boards/create`,
         method: 'POST',
       }),
-      invalidatesTags: [{ type: 'Tasks', id: 'LIST' }],
     }),
     deleteBoard: builder.mutation({
       query: (boardId) => ({

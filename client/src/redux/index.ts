@@ -1,6 +1,3 @@
 export * from './store';
-export * from './todoDataSlice';
-export * from './inProgressDataSlice';
-export * from './doneDataSlice';
+export * from './appDataSlice';
 export * from './boardSlice';
-export * from './createdBoardSlice';

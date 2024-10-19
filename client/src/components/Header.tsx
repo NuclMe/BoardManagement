@@ -5,24 +5,16 @@ import {
   useLazyGetDoneIssuesQuery,
 } from '../redux/boardApi';
 import { useDispatch } from 'react-redux';
-import {
-  setTodoData,
-  setInProgressIssues,
-  setDoneIssues,
-  setBoardId,
-  setCreatedBoardId,
-} from '../redux';
+import { setAppData, setBoardId } from '../redux';
 import { Input, Button, Flex, Modal } from 'antd';
 import { useCreateBoardMutation } from '../redux/boardApi';
 
 interface HeaderProps {
-  setIsCreated: (value: boolean) => void; // Пропс для обновления состояния в App
   setHasData: (value: boolean) => void;
 }
 
-export const Header: React.FC<HeaderProps> = ({ setIsCreated, setHasData }) => {
+export const Header: React.FC<HeaderProps> = ({ setHasData }) => {
   const [localBoardId, setLocalBoardId] = useState<string>();
-
   const [isModalVisible, setIsModalVisible] = useState(false);
   const dispatch = useDispatch();
   const [createBoard] = useCreateBoardMutation();
@@ -34,45 +26,55 @@ export const Header: React.FC<HeaderProps> = ({ setIsCreated, setHasData }) => {
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setLocalBoardId(e.target.value);
   };
-
-  const getIssues = async () => {
+  const handleCreateBoard = async () => {
     try {
-      const { data: todoIssues } = await triggerGetTodoIssues(localBoardId);
-      const { data: inProgressIssues } =
-        await triggerGetGetInProgressIssues(localBoardId);
-      const { data: doneIssues } = await triggerGetDoneIssues(localBoardId);
+      const response = await createBoard({}).unwrap();
+      if (response && response._id) {
+        const newBoardId = response._id;
 
-      // Проверяем, есть ли данные для каждой категории и диспатчим пустые массивы, если данных нет
-      dispatch(setTodoData(todoIssues ?? []));
-      dispatch(setInProgressIssues(inProgressIssues ?? []));
-      dispatch(setDoneIssues(doneIssues ?? []));
+        dispatch(setBoardId(newBoardId));
+        setLocalBoardId(newBoardId);
 
-      if (localBoardId) {
-        dispatch(setBoardId(localBoardId));
+        await getIssues(newBoardId);
       }
+      setIsModalVisible(true);
+    } catch (error) {
+      console.error('Error creating board:', error);
+    }
+  };
 
+  const getIssues = async (boardId: string) => {
+    if (!boardId) {
+      console.error('Board ID is undefined!');
+      return;
+    }
+
+    try {
+      const { data: todoIssues } = await triggerGetTodoIssues(boardId);
+      const { data: inProgressIssues } =
+        await triggerGetGetInProgressIssues(boardId);
+      const { data: doneIssues } = await triggerGetDoneIssues(boardId);
+
+      dispatch(
+        setAppData({
+          Todo: todoIssues ?? [],
+          inProgress: inProgressIssues ?? [],
+          Done: doneIssues ?? [],
+        })
+      );
+
+      dispatch(setBoardId(boardId));
       setHasData(true);
     } catch (error) {
       console.error('Error fetching issues:', error);
 
-      dispatch(setTodoData([]));
-      dispatch(setInProgressIssues([]));
-      dispatch(setDoneIssues([]));
-    }
-  };
-
-  const handleCreateBoard = async () => {
-    try {
-      const response = await createBoard({}).unwrap();
-      dispatch(setCreatedBoardId(response._id));
-
-      setIsCreated(true);
-      if (response && response._id) {
-        setLocalBoardId(response._id);
-        setIsModalVisible(true);
-      }
-    } catch (error) {
-      console.error('Error creating board:', error);
+      dispatch(
+        setAppData({
+          Todo: [],
+          inProgress: [],
+          Done: [],
+        })
+      );
     }
   };
 
@@ -91,7 +93,13 @@ export const Header: React.FC<HeaderProps> = ({ setIsCreated, setHasData }) => {
           style={{ width: '200px' }}
           type="primary"
           size="middle"
-          onClick={getIssues}
+          onClick={() => {
+            if (localBoardId) {
+              getIssues(localBoardId);
+            } else {
+              console.error('Board ID is undefined!');
+            }
+          }}
         >
           Load board
         </Button>
@@ -108,7 +116,7 @@ export const Header: React.FC<HeaderProps> = ({ setIsCreated, setHasData }) => {
       </Flex>
       <Modal
         title="Board Created"
-        visible={isModalVisible}
+        open={isModalVisible}
         onOk={handleModalClose}
         onCancel={handleModalClose}
         centered

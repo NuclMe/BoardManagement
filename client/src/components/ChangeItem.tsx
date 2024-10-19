@@ -3,8 +3,10 @@ import { Flex, Button, Input } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import styled from 'styled-components';
 import { useAddIssueMutation, useEditIssueMutation } from '../redux/boardApi';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '../redux/store';
+import { addTodo, updateTask } from '../redux/appDataSlice';
+import { useLazyGetTodoIssuesQuery } from '../redux/boardApi';
 
 const { TextArea } = Input;
 
@@ -26,6 +28,7 @@ interface ChangeItemProps {
   initialDescription?: string;
   boardId?: string;
   handleCancelEdit?: () => void;
+  status?: string;
 }
 
 export const ChangeItem: React.FC<ChangeItemProps> = ({
@@ -38,15 +41,11 @@ export const ChangeItem: React.FC<ChangeItemProps> = ({
   const [description, setDescription] = useState(initialDescription);
   const [isShown, setIsShown] = useState(false);
   const [isEdit, setIsEdit] = useState(!!taskId);
+  const [triggerGetTodoIssues] = useLazyGetTodoIssuesQuery();
 
-  const createdBoardId = useSelector(
-    (state: RootState) => state.createdBoard.createdBoardId
-  );
-  const defaultBoardId = useSelector(
-    (state: RootState) => state.boardId.boardId
-  );
+  const dispatch = useDispatch();
 
-  const boardId = createdBoardId || defaultBoardId;
+  const boardId = useSelector((state: RootState) => state.boardId.boardId);
 
   const [addTask] = useAddIssueMutation();
   const [editTask] = useEditIssueMutation();
@@ -63,6 +62,7 @@ export const ChangeItem: React.FC<ChangeItemProps> = ({
             description,
             boardId,
           }).unwrap();
+          dispatch(updateTask({ _id: taskId, title, description }));
           console.log('Task edited:', result);
 
           if (handleCancelEdit) {
@@ -75,6 +75,16 @@ export const ChangeItem: React.FC<ChangeItemProps> = ({
             boardId,
           }).unwrap();
           console.log('New task added:', result);
+          dispatch(
+            addTodo({
+              _id: result._id,
+              title: result.title,
+              description: result.description,
+              status: 'Todo',
+              boardId: boardId,
+            })
+          );
+          await triggerGetTodoIssues(boardId);
           setTitle('');
           setDescription('');
           setIsShown(false);
