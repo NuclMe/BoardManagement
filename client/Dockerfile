@@ -1,20 +1,14 @@
-# Указываем базовый образ для Node.js
-FROM node:18
+FROM node:22.4.1
 
-# Рабочая директория
-WORKDIR /app
+WORKDIR /client/  
 
-# Копируем package.json и package-lock.json
-COPY package*.json ./
+COPY ./package.json ./
+COPY ./package-lock.json ./  
 
-# Устанавливаем зависимости
 RUN npm install
 
-# Копируем все файлы проекта
-COPY . .
+COPY . .  
 
-# Открываем порт
-EXPOSE 5000
+EXPOSE 5173
 
-# Запуск приложения
-CMD ["npm", "run", "dev"]
+CMD ["npm", "run", "dev", "--", "--host"]  

@@ -1,11 +1,11 @@
-version: '3'
 services:
   frontend:
     build:
       context: ./client
       dockerfile: Dockerfile
     ports:
-      - "3000:80" # перенаправляем порт 3000 на порт 80 nginx
+      - "5173:5173"
+    stdin_open: true
     depends_on:
       - backend
 
@@ -14,6 +14,22 @@ services:
       context: ./server
       dockerfile: Dockerfile
     ports:
-      - "5000:5000" # перенаправляем порт 5000 на порт backend
+      - "5000:5000" 
     environment:
       - NODE_ENV=production
+    depends_on:
+      - mongo
+
+  mongo:
+    image: mongo
+    restart: always
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: SergS
+      MONGO_INITDB_ROOT_PASSWORD: ololo123
+    volumes:
+      - mongo-data:/data/config/db.js
+volumes:
+  mongo-data:
+    driver: local
